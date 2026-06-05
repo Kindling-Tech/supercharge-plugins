@@ -1,11 +1,11 @@
 # Append to ~/.codex/config.toml (user scope) or <repo>/.codex/config.toml (project).
-# Set SUPERCHARGE_MCP_TOKEN in your environment first (export SUPERCHARGE_MCP_TOKEN=mcp_live_...).
+# One-time — the token is inline (http_headers), so there is no environment variable to set.
 
 [mcp_servers.supercharge]
 url = "https://api.supercharge.so/mcp"   # replace with your env's /mcp URL (see INSTALL.md)
-bearer_token_env_var = "SUPERCHARGE_MCP_TOKEN"
+http_headers = { Authorization = "Bearer mcp_live_xxx" }
 
 # OPTIONAL auto-ingest hook (verify the exact [hooks] schema against
 # https://developers.openai.com/codex/hooks for your Codex version before enabling):
 # [[hooks.UserPromptSubmit]]
-# command = ["python3", "/abs/path/to/plugins/supercharge-ingest/hooks/detect_ingest_intent.py"]
+# command = ["python3", "/abs/path/to/supercharge-ingest/hooks/detect_ingest_intent.py"]

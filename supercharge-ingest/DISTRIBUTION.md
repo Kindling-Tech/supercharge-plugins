@@ -7,24 +7,28 @@ steps a customer runs for Claude Code, Cursor, and Codex.
 
 1. **The MCP server** — already live and customer-reachable at `https://api.supercharge.so/mcp` (Streamable HTTP, bearer auth, per-request tenant resolution). Nothing to deploy.
 2. **The plugin package** — published as a **public marketplace repo: `Kindling-Tech/supercharge-plugins`** (this package). Public is required so customers can `/plugin marketplace add Kindling-Tech/supercharge-plugins`. It is clean-room: config + a skill + a hook, no backend code (enforced by `scripts/check_moat.sh`).
-3. **Per-customer credentials** — each customer gets their own URL + `mcp_live_…` token from the Supercharge app (`GET /companies/{id}/mcp/server-info` + credential reveal in Connect Hub). The package never contains a token; it reads `SUPERCHARGE_MCP_URL` / `SUPERCHARGE_MCP_TOKEN` from the environment.
+3. **Per-customer credentials** — each customer gets their own URL + `mcp_live_…` token from the Supercharge app (`GET /companies/{id}/mcp/server-info` + credential reveal in Connect Hub). The package never contains a token; the token is given to the agent once at connect time and saved in the agent's own config (no environment variables).
 
 So "can a customer add our plugin?" → **yes**, once (2) is published publicly and the customer has their token. The server (1) and credentials (3) already exist.
 
 ## Claude Code
 
-```bash
-# one-time
-export SUPERCHARGE_MCP_URL="https://api.supercharge.so/mcp"
-export SUPERCHARGE_MCP_TOKEN="mcp_live_xxx"        # from the Supercharge app
+Connect once — the token is saved into Claude Code's user config (every project, no env vars):
 
-# in Claude Code
-/plugin marketplace add Kindling-Tech/supercharge-plugins
-/plugin install supercharge-ingest@supercharge
-/reload-plugins
+```bash
+claude mcp add supercharge --scope user --transport http \
+  --url "https://api.supercharge.so/mcp" \
+  --header "Authorization: Bearer mcp_live_xxx"
 ```
 
-`supercharge` is the marketplace name (the `name` in `marketplace.json`); `supercharge-ingest` is the plugin. Installing loads the MCP server, the `knowledge-ingest` skill, and the `UserPromptSubmit` auto-ingest hook. Verify with `/mcp`.
+Then, inside Claude Code, add the auto-save plugin (skill + hook):
+
+```text
+/plugin marketplace add Kindling-Tech/supercharge-plugins
+/plugin install supercharge-ingest@supercharge
+```
+
+`supercharge` is the marketplace name (the `name` in `marketplace.json`); `supercharge-ingest` is the plugin. It adds the `knowledge-ingest` skill and the `UserPromptSubmit` auto-ingest hook on top of the server you connected above. Verify with `/mcp`.
 
 **Team / org rollout** — commit this to the customer's repo `.claude/settings.json`; on folder-trust Claude Code prompts to install:
 
@@ -57,16 +61,21 @@ Render it as an **Add to Cursor** button in the Supercharge app; clicking it ins
 
 ## Codex
 
-```bash
-export SUPERCHARGE_MCP_TOKEN="mcp_live_xxx"
-codex mcp add supercharge --url "https://api.supercharge.so/mcp" --bearer-token-env-var SUPERCHARGE_MCP_TOKEN
+Add once to `~/.codex/config.toml` (token inline — no env var):
 
+```toml
+[mcp_servers.supercharge]
+url = "https://api.supercharge.so/mcp"
+http_headers = { Authorization = "Bearer mcp_live_xxx" }
+```
+
+```bash
 # proactive "when to ingest" guidance + optional subagent
 cat codex/AGENTS.snippet.md >> AGENTS.md
 mkdir -p .codex/agents && cp codex/agents/knowledge-ingest.toml .codex/agents/
 ```
 
-Equivalent manual config is in `codex/config.snippet.toml`. Verify with `/mcp` inside Codex. Org defaults can go in `/etc/codex/config.toml`.
+The same snippet is in `codex/config.snippet.toml`. Verify with `/mcp` inside Codex. Org defaults can go in `/etc/codex/config.toml`.
 
 ## How we publish / update the package
 
@@ -85,4 +94,4 @@ Every release must pass `scripts/check_moat.sh` — this repo ships only the cle
 ## Security
 
 - Plugins/marketplaces run code with the user's privileges — only the clean-room contents here are shipped; `check_moat.sh` blocks internal identifiers.
-- Tokens are never committed; they live in env vars (and, for the Cursor deeplink, only in per-customer links generated in the authenticated app). Tokens are revocable in Connect Hub.
+- Tokens are never committed; they're saved in the agent's own config (and, for the Cursor deeplink, only in per-customer links generated in the authenticated app). Tokens are revocable in Connect Hub.
