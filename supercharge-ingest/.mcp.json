@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "supercharge": {
+      "type": "http",
+      "url": "${SUPERCHARGE_MCP_URL}",
+      "headers": {
+        "Authorization": "Bearer ${SUPERCHARGE_MCP_TOKEN}"
+      }
+    }
+  }
+}

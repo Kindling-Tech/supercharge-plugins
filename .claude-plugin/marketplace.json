@@ -1,0 +1,13 @@
+{
+  "name": "supercharge",
+  "description": "Supercharge plugins for AI coding agents.",
+  "owner": { "name": "Supercharge", "url": "https://supercharge.so" },
+  "plugins": [
+    {
+      "name": "supercharge-ingest",
+      "source": "./supercharge-ingest",
+      "description": "Auto-save knowledge to your Supercharge knowledge base from Claude Code, Cursor, or Codex.",
+      "category": "integrations"
+    }
+  ]
+}

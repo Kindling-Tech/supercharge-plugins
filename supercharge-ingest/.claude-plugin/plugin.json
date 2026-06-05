@@ -1,0 +1,9 @@
+{
+  "name": "supercharge-ingest",
+  "version": "0.1.0",
+  "description": "Save knowledge to your Supercharge knowledge base automatically. Connects your agent to the Supercharge ingestion MCP server, with a knowledge-ingest skill and an auto-ingest hook.",
+  "author": { "name": "Supercharge", "url": "https://supercharge.so" },
+  "homepage": "https://supercharge.so",
+  "license": "UNLICENSED",
+  "keywords": ["mcp", "knowledge-base", "ingestion", "supercharge", "memory"]
+}
