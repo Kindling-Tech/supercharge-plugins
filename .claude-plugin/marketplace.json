@@ -4,9 +4,9 @@
   "owner": { "name": "Supercharge", "url": "https://supercharge.so" },
   "plugins": [
     {
-      "name": "supercharge-ingest",
-      "source": "./supercharge-ingest",
-      "description": "Auto-save knowledge to your Supercharge knowledge base from Claude Code, Cursor, or Codex.",
+      "name": "kindling-ingest",
+      "source": "./plugins/kindling-ingest",
+      "description": "Review Granola sources, filter sensitive information, and ingest only approved knowledge into Kindling.",
       "category": "integrations"
     }
   ]

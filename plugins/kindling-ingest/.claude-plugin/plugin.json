@@ -1,0 +1,15 @@
+{
+  "name": "kindling-ingest",
+  "version": "1.0.0",
+  "description": "Review and safely ingest durable source knowledge into Kindling.",
+  "author": {
+    "name": "Kindling",
+    "url": "https://kindling.team"
+  },
+  "homepage": "https://kindling.team",
+  "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
+  "license": "UNLICENSED",
+  "keywords": ["kindling", "granola", "mcp", "knowledge", "ingestion"],
+  "skills": "./skills/",
+  "mcpServers": "./claude.mcp.json"
+}

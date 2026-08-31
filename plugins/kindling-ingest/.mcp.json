@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "kindling": {
+      "type": "http",
+      "url": "https://api.kindling.team/mcp",
+      "oauth_resource": "https://api.kindling.team/mcp",
+      "default_tools_approval_mode": "approve",
+      "enabled_tools": [
+        "search_memory",
+        "fetch_memory",
+        "add_knowledge",
+        "get_ingestion_status"
+      ],
+      "tools": {
+        "add_knowledge": {
+          "approval_mode": "prompt"
+        }
+      }
+    },
+    "granola": {
+      "type": "http",
+      "url": "https://mcp.granola.ai/mcp",
+      "oauth_resource": "https://mcp.granola.ai/mcp",
+      "default_tools_approval_mode": "approve",
+      "enabled_tools": [
+        "get_account_info",
+        "list_meetings",
+        "get_meetings",
+        "get_meeting_transcript",
+        "query_granola_meetings"
+      ]
+    }
+  }
+}

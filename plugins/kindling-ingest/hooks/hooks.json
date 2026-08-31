@@ -1,0 +1,54 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-guard.cjs\" prompt",
+            "timeout": 10,
+            "statusMessage": "Checking Kindling ingestion intent"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^mcp__.*kindling.*__add_knowledge$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-guard.cjs\" before-write",
+            "timeout": 10,
+            "statusMessage": "Verifying Kindling approval"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^mcp__.*kindling.*__add_knowledge$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-guard.cjs\" after-write",
+            "timeout": 10,
+            "statusMessage": "Recording Kindling receipt"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "^mcp__.*kindling.*__add_knowledge$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-guard.cjs\" write-failed",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

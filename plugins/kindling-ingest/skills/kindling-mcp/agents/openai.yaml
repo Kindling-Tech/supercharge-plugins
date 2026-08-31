@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kindling MCP"
+  short_description: "Use Kindling knowledge tools correctly"
+  default_prompt: "Use $kindling-mcp to answer this from Kindling knowledge or prepare a reviewed knowledge update."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kindling"
+      description: "Search, fetch, ingest, and check knowledge in the connected Kindling workspace."
+      transport: "streamable_http"
+      url: "https://api.kindling.team/mcp"
+policy:
+  allow_implicit_invocation: true

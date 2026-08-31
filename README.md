@@ -1,31 +1,63 @@
 # Supercharge Plugins
 
-Official Supercharge plugins for AI coding agents — **Claude Code**, **Cursor**, and **Codex**.
+Official Kindling agent plugins for Codex and Claude Code.
 
-This repository is a [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces) (`.claude-plugin/marketplace.json`).
+This repository is both:
 
-## Plugins
+- a Claude Code marketplace at `.claude-plugin/marketplace.json`; and
+- a Codex marketplace at `.agents/plugins/marketplace.json`.
 
-### `supercharge-ingest`
+## Kindling Ingest
 
-Save knowledge to your Supercharge knowledge base automatically. Connects your
-agent to the Supercharge ingestion MCP server, and adds a `knowledge-ingest`
-skill plus an auto-ingest hook so the agent saves on clear intent ("remember
-this…") without being asked.
+`kindling-ingest` connects the existing Kindling and Granola remote MCP servers
+and ships exactly two clean-room skills:
 
-**Claude Code**
+- `kindling-source-ingestion` safely reviews external sources, filters sensitive
+  information, formats exact Kindling payloads, requires digest-bound approval,
+  and keeps a metadata-only local receipt ledger;
+- `kindling-mcp` teaches the public Kindling knowledge tool contract.
+
+The plugin contains no Kindling backend code or private prompt material. See
+[`plugins/kindling-ingest/README.md`](plugins/kindling-ingest/README.md) and
+[`plugins/kindling-ingest/INSTALL.md`](plugins/kindling-ingest/INSTALL.md).
+
+### Install with the CLI
 
 ```bash
-/plugin marketplace add Kindling-Tech/supercharge-plugins
-/plugin install supercharge-ingest@supercharge
+npx @kindling/agent install --target all
 ```
 
-**Cursor / Codex** and full setup (including getting your token): see
-[`supercharge-ingest/INSTALL.md`](supercharge-ingest/INSTALL.md) and
-[`supercharge-ingest/DISTRIBUTION.md`](supercharge-ingest/DISTRIBUTION.md).
+The install command is a dry run unless `--execute` is supplied.
 
-## Notes
+### Claude Code
 
-- You need a Supercharge account; get your MCP URL + bearer token from the app.
-- These packages contain no server-side code — only client config, a skill, and
-  a hook (`supercharge-ingest/scripts/check_moat.sh` enforces this).
+```bash
+claude plugin marketplace add Kindling-Tech/supercharge-plugins
+claude plugin install kindling-ingest@supercharge --scope user
+```
+
+### Codex
+
+```bash
+codex plugin marketplace add Kindling-Tech/supercharge-plugins
+codex plugin add kindling-ingest@supercharge
+```
+
+After installation, start a new session, review/trust the plugin hooks, and
+authenticate the Kindling and Granola MCP connections in the host UI.
+
+## Legacy plugin
+
+The `supercharge-ingest` source is retained temporarily for historical
+compatibility and regression tests, but it is no longer listed in either active
+marketplace because it does not implement the reviewed-ingestion policy.
+
+## Development
+
+```bash
+npm install
+npm run check
+```
+
+The detailed internal build task is tracked in
+[`docs/tasks/2026-08-31-kindling-ingest-plugin.md`](docs/tasks/2026-08-31-kindling-ingest-plugin.md).
