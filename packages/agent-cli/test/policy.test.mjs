@@ -37,11 +37,23 @@ test("policy rejects unknown keys and invalid bounds", () => {
   );
 });
 
+test("policy is source-platform agnostic", () => {
+  const policy = defaultPolicy();
+  assert.deepEqual(Object.keys(policy).sort(), [
+    "organization",
+    "public_information",
+    "review",
+    "schema_version",
+    "sensitive",
+  ]);
+  assert.equal(policy.schema_version, 2);
+});
+
 test("policy YAML rejects duplicate keys", async () => {
   const { paths } = await temporaryWorkspace();
   await writeFile(
     paths.policy,
-    "schema_version: 1\nschema_version: 1\norganization: {}\n",
+    "schema_version: 2\nschema_version: 2\norganization: {}\n",
     "utf8",
   );
   await assert.rejects(

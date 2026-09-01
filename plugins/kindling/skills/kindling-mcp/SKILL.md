@@ -20,8 +20,8 @@ Use only the public knowledge contract documented in
 
 ## Write
 
-1. Route Granola, URLs, transcripts, meeting notes, files, and other external
-   sources to the `kindling-source-ingestion` skill.
+1. Route URLs, transcripts, meeting notes, files, connected knowledge sources,
+   and other external material to the `kindling-source-ingestion` skill.
 2. For a durable fact supplied directly by the user, create a one-candidate
    reviewed report using `connector_label: manual-reviewed`.
 3. Wait for the exact report approval command.

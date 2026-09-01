@@ -15,8 +15,10 @@ import { loadReport } from "./report.mjs";
 import { recordSourcesSent } from "./sources.mjs";
 import { loadPolicy, policyDigest } from "./policy.mjs";
 
-const INGESTION_INTENT =
-  /\b(?:ingest|save (?:this|that)|remember (?:this|that)|granola|meeting notes?|knowledge base|add (?:this|that) to (?:kindling|memory))\b/i;
+const EXPLICIT_INGESTION_INTENT =
+  /\b(?:ingest|transfer (?:this|that|these|the|my|knowledge)|save (?:this|that|these)|remember (?:this|that|these)|add (?:this|that|these) to (?:kindling|supercharge|memory))\b/i;
+const SOURCE_CONTEXT_INTENT =
+  /\b(?:meeting notes?|transcripts?|knowledge source|knowledge base)\b/i;
 
 function promptContext(message) {
   return {
@@ -86,9 +88,14 @@ export async function handleUserPrompt(payload, now = new Date()) {
       );
     }
   }
-  if (INGESTION_INTENT.test(prompt)) {
+  if (EXPLICIT_INGESTION_INTENT.test(prompt)) {
     return promptContext(
-      "Use the installed kindling-source-ingestion skill. Generate a digest-bound review report and wait for explicit approval before calling Kindling add_knowledge.",
+      "The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed kindling-source-ingestion skill, generate a digest-bound review report, and wait for the report's exact approval command before calling Kindling add_knowledge.",
+    );
+  }
+  if (SOURCE_CONTEXT_INTENT.test(prompt)) {
+    return promptContext(
+      "A potential knowledge source is in scope. Offer to review it for business-sensitive information and transfer only safe, durable knowledge to Kindling (Supercharge). Do not inspect additional source material or prepare a transfer until the user says yes. A yes authorizes source review only; the later report approval is still required before add_knowledge.",
     );
   }
   return null;

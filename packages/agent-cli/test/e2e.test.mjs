@@ -41,7 +41,7 @@ test("shipped bundle enforces report approval and records a redacted receipt end
 
   const reportInput = {
     source: {
-      provider: "granola",
+      provider: "connected-source",
       items: [
         {
           content_digest: sourceContentDigest(

@@ -1,6 +1,6 @@
 {
   "name": "kindling",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Review and safely ingest durable source knowledge into Kindling.",
   "author": {
     "name": "Kindling",
@@ -9,18 +9,18 @@
   "homepage": "https://kindling.team",
   "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
   "license": "UNLICENSED",
-  "keywords": ["kindling", "granola", "mcp", "knowledge", "ingestion"],
+  "keywords": ["kindling", "mcp", "knowledge", "ingestion"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Kindling",
     "shortDescription": "Review and safely ingest source knowledge",
-    "longDescription": "Connect Granola and Kindling, filter private information, review exact knowledge payloads, and ingest only approved content.",
+    "longDescription": "Review knowledge from sources the user already has, filter private information, and ingest only approved content through Kindling.",
     "developerName": "Kindling",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
     "websiteURL": "https://kindling.team",
     "defaultPrompt": [
-      "Review my latest Granola meetings for Kindling.",
+      "Review this source for safe Kindling ingestion.",
       "Set up my Kindling ingestion policy.",
       "Show what has been sent to Kindling."
     ]

@@ -4,12 +4,14 @@ import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { resolve } from "node:path";
 import YAML from "yaml";
+import { KINDLING_MCP_URL, PLUGIN_VERSION } from "./constants.mjs";
 import {
-  GRANOLA_MCP_URL,
-  KINDLING_MCP_URL,
-  PLUGIN_VERSION,
-  TRANSCRIPT_MODES,
-} from "./constants.mjs";
+  CLAUDE_KINDLING_SERVER,
+  CODEX_KINDLING_SERVER,
+  connectionCommands,
+  parseClaudeConnectionStatus,
+  parseCodexConnectionStatus,
+} from "./connections.mjs";
 import { parseApprovalPrompt, recordApproval } from "./approval.mjs";
 import { runHook } from "./hooks.mjs";
 import {
@@ -112,9 +114,7 @@ async function coldStart(options) {
       approvalMinutes: config.approval_expires_minutes,
       blockedEntities: config.blocked_entities,
       blockedTopics: config.blocked_topics,
-      lookbackDays: config.initial_lookback_days,
       organizationName: config.organization_name,
-      transcriptMode: config.use_transcripts,
     });
   } else if (options.defaults || !process.stdin.isTTY) {
     if (!options.defaults && !process.stdin.isTTY) {
@@ -140,13 +140,6 @@ async function coldStart(options) {
         "",
       ),
     );
-    const lookbackDays = Number(
-      await prompt("Initial Granola lookback days", "7"),
-    );
-    const transcriptMode = await prompt(
-      `Transcript mode (${[...TRANSCRIPT_MODES].join(" | ")})`,
-      "only_when_notes_are_insufficient",
-    );
     const approvalMinutes = Number(
       await prompt("Approval expiry in minutes", "30"),
     );
@@ -154,16 +147,14 @@ async function coldStart(options) {
       approvalMinutes,
       blockedEntities,
       blockedTopics,
-      lookbackDays,
       organizationName,
-      transcriptMode,
     });
   }
   await atomicWrite(paths.policy, renderPolicy(policy));
   print(`Created ${paths.policy}`);
   print(`Policy digest: ${policyDigest(policy)}`);
   print(
-    "Next: authenticate both plugin MCP connections, then run the source-ingestion skill in run mode.",
+    "Next: connect the Kindling MCP, then run the source-ingestion skill in run mode.",
   );
 }
 
@@ -299,32 +290,101 @@ function renderCommand([command, args]) {
   ].join(" ");
 }
 
-async function runCommand(command, args, { allowedNoop = null } = {}) {
-  await new Promise((resolvePromise, reject) => {
+async function runCommand(
+  command,
+  args,
+  { allowedNoop = null, interactive = false, silent = false } = {},
+) {
+  return new Promise((resolvePromise, reject) => {
     const child = spawn(command, args, {
-      stdio: ["inherit", "pipe", "pipe"],
+      stdio: interactive
+        ? "inherit"
+        : [silent ? "ignore" : "inherit", "pipe", "pipe"],
       shell: false,
     });
     let stdout = "";
     let stderr = "";
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-      process.stdout.write(chunk);
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk;
-      process.stderr.write(chunk);
-    });
+    if (child.stdout) {
+      child.stdout.setEncoding("utf8");
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk;
+        if (!silent) process.stdout.write(chunk);
+      });
+    }
+    if (child.stderr) {
+      child.stderr.setEncoding("utf8");
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk;
+        if (!silent) process.stderr.write(chunk);
+      });
+    }
     child.once("error", reject);
     child.once("exit", (code) => {
-      if (code === 0) resolvePromise();
+      if (code === 0) resolvePromise({ stderr, stdout });
       else if (allowedNoop && allowedNoop.test(`${stdout}\n${stderr}`))
-        resolvePromise();
+        resolvePromise({ stderr, stdout });
       else reject(new Error(`${command} exited with status ${code}`));
     });
   });
+}
+
+async function connectionStatus(host) {
+  if (host === "claude-code") {
+    const result = await runCommand("claude", ["mcp", "list"], {
+      silent: true,
+    });
+    return parseClaudeConnectionStatus(`${result.stdout}\n${result.stderr}`);
+  }
+  const result = await runCommand("codex", ["mcp", "list", "--json"], {
+    silent: true,
+  });
+  return parseCodexConnectionStatus(result.stdout);
+}
+
+function automaticConnectionEnabled() {
+  const value = String(
+    process.env.CLAUDE_PLUGIN_OPTION_AUTO_CONNECT ?? "true",
+  ).toLowerCase();
+  return !["0", "false", "no", "off"].includes(value);
+}
+
+async function connectCommand(options) {
+  const target = String(options.target ?? "all");
+  const automatic = Boolean(options.automatic);
+  if (automatic && target !== "claude-code") return;
+  if (automatic && !automaticConnectionEnabled()) return;
+
+  for (const [host, command, args] of connectionCommands(target)) {
+    let status;
+    try {
+      status = await connectionStatus(host);
+    } catch (error) {
+      if (automatic) return;
+      throw error;
+    }
+    if (status === "connected" && !options.force) {
+      if (!automatic) print(`Kindling is already connected in ${host}.`);
+      continue;
+    }
+    if (automatic && status !== "not_logged_in") return;
+    if (status === "missing") {
+      const expected =
+        host === "claude-code" ? CLAUDE_KINDLING_SERVER : CODEX_KINDLING_SERVER;
+      throw new Error(
+        `Kindling MCP server ${expected} is not installed in ${host}`,
+      );
+    }
+    try {
+      await runCommand(command, args, {
+        interactive: !automatic,
+        silent: automatic,
+      });
+    } catch (error) {
+      if (automatic) return;
+      throw error;
+    }
+    if (!automatic) print(`Kindling connected in ${host}.`);
+  }
 }
 
 async function installCommand(options) {
@@ -332,6 +392,12 @@ async function installCommand(options) {
   const commands = installationCommands(target);
   print("Planned commands:");
   for (const command of commands) print(`  ${renderCommand(command)}`);
+  if (!options["no-connect"]) {
+    print("Kindling sign-in after installation:");
+    for (const [, command, args] of connectionCommands(target)) {
+      print(`  ${renderCommand([command, args])}`);
+    }
+  }
   if (!options.execute) {
     print("Dry run only. Add --execute to run these commands.");
     return;
@@ -347,10 +413,20 @@ async function installCommand(options) {
   for (const [command, args] of commands) {
     await runCommand(command, args, {
       allowedNoop: /already (?:configured|exists|installed|added)|duplicate/i,
+      interactive:
+        (command === "claude" &&
+          args[0] === "plugin" &&
+          args[1] === "install") ||
+        (command === "codex" && args[0] === "plugin" && args[1] === "add"),
     });
   }
+  if (!options["no-connect"]) {
+    await connectCommand({ target });
+  }
   print(
-    "Plugin installed. Open a new host session, trust the plugin hooks, and authenticate Kindling and Granola in the MCP UI.",
+    options["no-connect"]
+      ? "Plugin installed. Kindling sign-in was skipped by request."
+      : "Plugin installed and Kindling connection is ready. Open a new host session and trust the plugin hooks when prompted.",
   );
 }
 
@@ -389,12 +465,11 @@ async function doctorCommand(options) {
   print(`Policy: ${paths.policy}`);
   print(`Policy digest: ${policyDigest(policy)}`);
   print(`Kindling MCP: ${KINDLING_MCP_URL}`);
-  print(`Granola MCP: ${GRANOLA_MCP_URL}`);
   print(
-    "Claude Code: use /plugins, /hooks, and /mcp to confirm plugin, hook trust, and OAuth status.",
+    "Claude Code: Kindling sign-in opens automatically after consent; use /plugins, /hooks, and /mcp for diagnostics.",
   );
   print(
-    "Codex: inspect the plugin directory and MCP status; start a new task after installation or update.",
+    "Codex: authentication policy is ON_INSTALL; start a new task after installation or update.",
   );
 }
 
@@ -402,7 +477,8 @@ function help() {
   print(`Kindling agent CLI ${PLUGIN_VERSION}
 
 Usage:
-  kindling-agent install --target claude-code|codex|all [--execute --yes]
+  kindling-agent install --target claude-code|codex|all [--execute --yes --no-connect]
+  kindling-agent connect --target claude-code|codex|all [--force]
   kindling-agent cold-start [--defaults | --config-json FILE] [--force]
   kindling-agent policy validate [--path FILE]
   kindling-agent report create --input FILE
@@ -451,6 +527,7 @@ async function main() {
   if (command === "audit") return auditCommand(options);
   if (command === "doctor") return doctorCommand(options);
   if (command === "install") return installCommand(options);
+  if (command === "connect") return connectCommand(options);
   if (command === "uninstall") return uninstallCommand(options);
   throw new Error(
     `unknown command: ${[command, subcommand].filter(Boolean).join(" ")}`,

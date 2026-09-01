@@ -2,9 +2,16 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { join, resolve } from "node:path";
-import { access, mkdtemp, writeFile } from "node:fs/promises";
+import {
+  access,
+  chmod,
+  mkdir,
+  mkdtemp,
+  readFile,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
+import { delimiter, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const execFileAsync = promisify(execFile);
@@ -45,8 +52,112 @@ test("install is dry-run by default and emits real host commands", async () => {
     /claude plugin marketplace add Kindling-Tech\/supercharge-plugins/,
   );
   assert.match(result.stdout, /codex plugin add kindling@supercharge/);
+  assert.match(result.stdout, /claude mcp login plugin:kindling:kindling/);
+  assert.match(result.stdout, /codex mcp login kindling/);
   assert.match(result.stdout, /Dry run only/);
 });
+
+test(
+  "automatic Claude connection opens host-native login only when needed",
+  { skip: process.platform === "win32" },
+  async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "kindling-connect-"));
+    const bin = join(cwd, "bin");
+    const log = join(cwd, "calls.jsonl");
+    await mkdir(bin);
+    const fakeClaude = join(bin, "claude");
+    await writeFile(
+      fakeClaude,
+      `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.KINDLING_TEST_CALL_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "mcp list") {
+  console.log("plugin:kindling:kindling: https://api.kindling.team/mcp (HTTP) - ! Needs authentication");
+  process.exit(0);
+}
+if (args.join(" ") === "mcp login plugin:kindling:kindling") process.exit(0);
+process.exit(2);
+`,
+      "utf8",
+    );
+    await chmod(fakeClaude, 0o755);
+
+    const result = await execFileAsync(
+      process.execPath,
+      [cli, "connect", "--target", "claude-code", "--automatic"],
+      {
+        cwd,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          KINDLING_TEST_CALL_LOG: log,
+          PATH: `${bin}${delimiter}${process.env.PATH ?? ""}`,
+        },
+      },
+    );
+    assert.equal(result.stdout, "");
+    const calls = (await readFile(log, "utf8"))
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    assert.deepEqual(calls, [
+      ["mcp", "list"],
+      ["mcp", "login", "plugin:kindling:kindling"],
+    ]);
+  },
+);
+
+test(
+  "Codex connection opens host-native login for an installed unlinked MCP",
+  { skip: process.platform === "win32" },
+  async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "kindling-connect-"));
+    const bin = join(cwd, "bin");
+    const log = join(cwd, "calls.jsonl");
+    await mkdir(bin);
+    const fakeCodex = join(bin, "codex");
+    await writeFile(
+      fakeCodex,
+      `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.KINDLING_TEST_CALL_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "mcp list --json") {
+  console.log(JSON.stringify([{ name: "kindling", auth_status: "not_logged_in" }]));
+  process.exit(0);
+}
+if (args.join(" ") === "mcp login kindling") process.exit(0);
+process.exit(2);
+`,
+      "utf8",
+    );
+    await chmod(fakeCodex, 0o755);
+
+    const result = await execFileAsync(
+      process.execPath,
+      [cli, "connect", "--target", "codex"],
+      {
+        cwd,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          KINDLING_TEST_CALL_LOG: log,
+          PATH: `${bin}${delimiter}${process.env.PATH ?? ""}`,
+        },
+      },
+    );
+    assert.match(result.stdout, /Kindling connected in codex/);
+    const calls = (await readFile(log, "utf8"))
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    assert.deepEqual(calls, [
+      ["mcp", "list", "--json"],
+      ["mcp", "login", "kindling"],
+    ]);
+  },
+);
 
 test("uninstall uses host-valid marketplace-qualified selectors", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "kindling-cli-"));

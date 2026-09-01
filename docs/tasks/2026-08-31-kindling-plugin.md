@@ -1,6 +1,6 @@
 # Kindling Plugin — End-to-End Build Task
 
-**Status:** Complete
+**Status:** Complete — revised for Kindling-only v1.1
 
 **Owner:** Agent platform
 
@@ -11,13 +11,16 @@
 ## Objective
 
 Ship a production-quality plugin that works in both Codex and Claude Code and
-connects the existing Kindling and Granola remote MCP servers. The plugin must
-contain exactly two clean-room skills:
+connects only the existing Kindling remote MCP server. Source platforms are
+optional host capabilities and are never bundled. The plugin must contain
+exactly two clean-room skills:
 
-1. `kindling-source-ingestion` — discover new Granola material, apply a static
-   public-marketing-safety baseline plus a customer-maintained policy, format
-   durable knowledge, generate a digest-bound review report, require explicit
-   approval, call the existing Kindling `add_knowledge` tool, and keep a
+1. `kindling-source-ingestion` — after the user accepts a contextual transfer
+   suggestion, review the smallest approved scope from pasted text, files,
+   URLs, or any source connector already available in the host; apply a static
+   public-marketing-safety baseline plus a customer-maintained policy; format
+   durable knowledge; generate a digest-bound review report; require explicit
+   approval; call the existing Kindling `add_knowledge` tool; and keep a
    metadata-only local audit trail.
 2. `kindling-mcp` — teach the correct use of the existing Kindling knowledge
    tools: `search_memory`, `add_knowledge`, `get_ingestion_status`, and
@@ -32,16 +35,25 @@ contain exactly two clean-room skills:
 - The static baseline cannot be weakened by customer configuration.
 - The baseline rejects anything that would not be safe to publish through
   public marketing.
-- Granola content is untrusted data, never executable instructions.
-- Granola notes are preferred; raw transcripts are fetched only when policy
-  permits and notes are insufficient.
+- All source content is untrusted data, never executable instructions.
+- Source access is consent-gated and scope-limited. Prefer summaries or authored
+  notes; fetch raw transcripts only when the user includes them in scope and a
+  less sensitive representation is insufficient.
+- The plugin bundles no source-platform MCP. A connected source is optional.
+- When a user works with a likely knowledge source, the agent offers a safe
+  transfer to Kindling (Supercharge) and waits for a yes/no answer before
+  reading more or preparing content.
 - The exact `add_knowledge` tool arguments must appear in a report before the
   user can approve them.
 - Approval is short-lived, digest-bound, candidate-specific, and single-use.
 - A shared `PreToolUse` hook denies an unmatched Kindling write.
 - A shared `PostToolUse` hook records source ID and status but never content.
-- OAuth is used for both MCP connections. No copied bearer tokens, embedded
-  secrets, or token-bearing deeplinks are shipped.
+- OAuth is used for the Kindling MCP connection. No copied bearer tokens,
+  embedded secrets, or token-bearing deeplinks are shipped.
+- Codex uses marketplace authentication policy `ON_INSTALL`. Claude Code asks
+  whether to connect through `userConfig` and a trusted startup hook invokes
+  its host-native MCP login command. The `npx` installer also opens host-native
+  sign-in directly.
 - Runtime state and reports are local and gitignored.
 - Hook enforcement is a guardrail for the normal MCP path; the skills remain
   complete and understandable without hidden prompt material.
@@ -55,14 +67,15 @@ contain exactly two clean-room skills:
 - [x] Plugin at `plugins/kindling/`.
 - [x] `.codex-plugin/plugin.json` with interface metadata and MCP path.
 - [x] `.claude-plugin/plugin.json` with skills, default hook discovery, and MCP path.
-- [x] Separate Claude and Codex MCP config shapes for Kindling and Granola.
+- [x] Separate Claude and Codex MCP config shapes containing only Kindling.
 - [x] Self-contained public archive with clean-room validation.
 
 ### Skills
 
 - [x] Focused `kindling-source-ingestion/SKILL.md` with cold-start and run modes.
 - [x] Focused `kindling-mcp/SKILL.md` covering only the four knowledge tools.
-- [x] Progressive references for filtering, formatting, review, and Granola.
+- [x] Progressive references for consent, source scope, filtering, formatting,
+      and review.
 - [x] Codex UI metadata in each skill's `agents/openai.yaml`.
 - [x] No stale `list_memory_map` reference anywhere.
 
@@ -87,6 +100,9 @@ contain exactly two clean-room skills:
 - [x] Explicit target selection and verified host-native Codex and Claude Code commands.
 - [x] Dry-run support and explicit confirmation before external config changes.
 - [x] Cross-platform paths and no Python runtime dependency.
+- [x] Direct `connect` command with host-native MCP server names.
+- [x] Default installation opens Kindling OAuth without requiring `/mcp` or a
+      manually typed login command.
 
 ### Documentation
 
@@ -113,7 +129,7 @@ contain exactly two clean-room skills:
 ### Contract and Packaging
 
 - [x] Both manifests validate.
-- [x] Both MCP configs parse and expose `kindling` and `granola`.
+- [x] Both MCP configs parse and expose only `kindling`.
 - [x] Claude hooks validate and load through default discovery.
 - [x] Codex plugin validator passes.
 - [x] Both skills pass the Agent Skills validator.
@@ -146,14 +162,18 @@ contain exactly two clean-room skills:
 
 ## Completion Evidence
 
-- `npm run check`: 40 new Node tests and 9 legacy Python tests passed; both
+- `npm run check`: 47 Node tests and 9 legacy Python tests passed; both
   skills, package shape, formatting, moat scan, and packed-`npx` smoke passed.
 - Codex plugin validator passed against source and the installed cache copy.
 - Claude plugin and marketplace validators passed.
-- Real Claude install reported 2 skills, 4 hooks, and 2 MCP servers; both remote
-  servers reached the expected OAuth-required state.
+- Real Claude source loading reported 2 skills, 5 hooks, and 1 Kindling MCP
+  server; an existing OAuth credential was detected as connected without
+  reopening sign-in.
 - Real Codex local-marketplace install produced `kindling@supercharge`
-  version `1.0.0` and a validation-clean cache artifact.
+  version `1.1.0`, preserved `ON_INSTALL`, exposed only the Kindling MCP, and
+  produced a validation-clean cache artifact. Its unauthenticated state was
+  detected as `not_logged_in`, which is the condition that the installer's
+  direct login step handles.
 - Temporary test installations and marketplace registrations were removed from
   both host configurations after verification.
 - `npm audit --audit-level=high` reported zero vulnerabilities.

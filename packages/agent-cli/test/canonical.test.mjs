@@ -12,7 +12,7 @@ test("canonical JSON sorts object keys recursively", () => {
 
 test("tool digest includes every writable field", () => {
   const base = {
-    connector_label: "granola-reviewed",
+    connector_label: "connected-source-reviewed",
     content: "Safe content",
     origin_uri: null,
     title: "Title",

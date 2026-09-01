@@ -6,10 +6,10 @@ Write this JSON only under gitignored `.kindling/state/`, then pass its path to
 ```json
 {
   "source": {
-    "provider": "granola",
+    "provider": "connected-source",
     "items": [
       {
-        "external_id": "provider meeting id",
+        "external_id": "private provider record id",
         "content_digest": "64 lowercase SHA-256 characters",
         "observed_at": "2026-08-31T09:00:00Z"
       }
@@ -29,6 +29,7 @@ Write this JSON only under gitignored `.kindling/state/`, then pass its path to
 ```
 
 `removed` and `withheld.code` contain rule identifiers only, not snippets.
+`source.provider` is one of `connected-source`, `file`, `manual`, or `web`.
 Candidate IDs use `KI-000`. A private `origin_uri` is rejected. Candidates that
 still contain deterministic sensitive markers are automatically withheld and
 are not persisted in the report.

@@ -9,8 +9,8 @@ This repository is both:
 
 ## Kindling
 
-`kindling` connects the existing Kindling and Granola remote MCP servers
-and ships exactly two clean-room skills:
+`kindling` connects the existing Kindling remote MCP server and ships exactly
+two clean-room skills:
 
 - `kindling-source-ingestion` safely reviews external sources, filters sensitive
   information, formats exact Kindling payloads, requires digest-bound approval,
@@ -27,7 +27,9 @@ The plugin contains no Kindling backend code or private prompt material. See
 npx @kindling/agent install --target all
 ```
 
-The install command is a dry run unless `--execute` is supplied.
+The install command is a dry run unless `--execute` is supplied. Execution
+opens Kindling's secure browser sign-in automatically; users do not need to
+know an MCP login command.
 
 ### Claude Code
 
@@ -43,8 +45,11 @@ codex plugin marketplace add Kindling-Tech/supercharge-plugins
 codex plugin add kindling@supercharge
 ```
 
-After installation, start a new session, review/trust the plugin hooks, and
-authenticate the Kindling and Granola MCP connections in the host UI.
+After installation, start a new session and review/trust the plugin hooks.
+Codex requests Kindling authentication during installation. Claude Code asks
+whether it should connect, then opens the same browser OAuth flow on startup.
+The ingestion skill can use sources the user already connected to the host, but
+the plugin does not install or require any source connector.
 
 If you installed the earlier `kindling-ingest@supercharge` build, remove it
 before installing `kindling@supercharge`; plugin IDs are cache and namespace

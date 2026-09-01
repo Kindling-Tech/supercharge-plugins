@@ -5,7 +5,7 @@ import { defaultPolicy, renderPolicy } from "../src/policy.mjs";
 import { ensurePrivateLayout } from "../src/paths.mjs";
 import { sourceContentDigest } from "../src/sources.mjs";
 
-export const SAFE_SOURCE_TEXT = "A meeting about stable public positioning.";
+export const SAFE_SOURCE_TEXT = "A source about stable public positioning.";
 
 export async function temporaryWorkspace(prefix = "kindling-test-") {
   const root = await mkdtemp(join(tmpdir(), prefix));
@@ -22,11 +22,11 @@ export async function temporaryWorkspace(prefix = "kindling-test-") {
 export function safeReportInput(overrides = {}) {
   return {
     source: {
-      provider: "granola",
+      provider: "connected-source",
       items: [
         {
           content_digest: sourceContentDigest(SAFE_SOURCE_TEXT),
-          external_id: "meeting-123",
+          external_id: "record-123",
           observed_at: "2026-08-31T09:00:00Z",
         },
       ],

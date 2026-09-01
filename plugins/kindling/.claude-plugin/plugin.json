@@ -1,6 +1,6 @@
 {
   "name": "kindling",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Review and safely ingest durable source knowledge into Kindling.",
   "author": {
     "name": "Kindling",
@@ -9,7 +9,15 @@
   "homepage": "https://kindling.team",
   "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
   "license": "UNLICENSED",
-  "keywords": ["kindling", "granola", "mcp", "knowledge", "ingestion"],
+  "keywords": ["kindling", "mcp", "knowledge", "ingestion"],
   "skills": "./skills/",
-  "mcpServers": "./claude.mcp.json"
+  "mcpServers": "./claude.mcp.json",
+  "userConfig": {
+    "auto_connect": {
+      "type": "boolean",
+      "title": "Connect Kindling now?",
+      "description": "Open the secure Kindling sign-in automatically when Claude Code starts.",
+      "default": true
+    }
+  }
 }

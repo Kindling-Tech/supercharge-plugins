@@ -7361,10 +7361,9 @@ var import_node_path3 = require("node:path");
 var import_yaml2 = __toESM(require_dist(), 1);
 
 // src/constants.mjs
-var PLUGIN_VERSION = "1.0.0";
-var POLICY_SCHEMA_VERSION = 1;
+var PLUGIN_VERSION = "1.1.0";
+var POLICY_SCHEMA_VERSION = 2;
 var KINDLING_MCP_URL = "https://api.kindling.team/mcp";
-var GRANOLA_MCP_URL = "https://mcp.granola.ai/mcp";
 var REPORT_ID_PATTERN = /^KIR-\d{8}-\d{6}-[a-f0-9]{4}$/;
 var CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;
 var APPROVAL_TTL_MIN = 5;
@@ -7381,11 +7380,6 @@ var REMOVE_DATA_TYPES = /* @__PURE__ */ new Set([
   "employee_name",
   "customer_name",
   "verbatim_quote"
-]);
-var TRANSCRIPT_MODES = /* @__PURE__ */ new Set([
-  "never",
-  "only_when_notes_are_insufficient",
-  "always"
 ]);
 var DEFAULT_POLICY = Object.freeze({
   schema_version: POLICY_SCHEMA_VERSION,
@@ -7406,18 +7400,61 @@ var DEFAULT_POLICY = Object.freeze({
     approved_domains: [],
     approved_claims: []
   },
-  granola: {
-    initial_lookback_days: 7,
-    overlap_days: 2,
-    use_transcripts: "only_when_notes_are_insufficient",
-    include_private_note_text: true
-  },
   review: {
     approval_expires_minutes: 30,
     allow_approve_all: true,
     persist_safe_reports: true
   }
 });
+
+// src/connections.mjs
+var CLAUDE_KINDLING_SERVER = "plugin:kindling:kindling";
+var CODEX_KINDLING_SERVER = "kindling";
+function connectionCommands(target) {
+  const commands = [];
+  if (target === "claude-code" || target === "all") {
+    commands.push([
+      "claude-code",
+      "claude",
+      ["mcp", "login", CLAUDE_KINDLING_SERVER]
+    ]);
+  }
+  if (target === "codex" || target === "all") {
+    commands.push(["codex", "codex", ["mcp", "login", CODEX_KINDLING_SERVER]]);
+  }
+  if (!commands.length) {
+    throw new Error("--target must be claude-code, codex, or all");
+  }
+  return commands;
+}
+function parseClaudeConnectionStatus(output2) {
+  const line = String(output2).split(/\r?\n/).find(
+    (candidate) => candidate.trimStart().startsWith(`${CLAUDE_KINDLING_SERVER}:`)
+  );
+  if (!line) return "missing";
+  if (/\bConnected\b/i.test(line)) return "connected";
+  if (/Needs authentication/i.test(line)) return "not_logged_in";
+  return "unavailable";
+}
+function parseCodexConnectionStatus(output2) {
+  let servers;
+  try {
+    servers = JSON.parse(String(output2));
+  } catch {
+    return "unavailable";
+  }
+  if (!Array.isArray(servers)) return "unavailable";
+  const server = servers.find(
+    (candidate) => candidate?.name === CODEX_KINDLING_SERVER
+  );
+  if (!server) return "missing";
+  const status = String(server.auth_status ?? "").toLowerCase();
+  if (status === "oauth") return "connected";
+  if (status === "not_logged_in" || status === "notloggedin") {
+    return "not_logged_in";
+  }
+  return "unavailable";
+}
 
 // src/canonical.mjs
 var import_node_crypto = require("node:crypto");
@@ -7483,7 +7520,7 @@ function kindlingPaths(kindlingDir) {
     approvals: (0, import_node_path.join)(root, "state", "approvals.jsonl"),
     sent: (0, import_node_path.join)(root, "state", "sent.jsonl"),
     failures: (0, import_node_path.join)(root, "state", "failures.jsonl"),
-    sources: (0, import_node_path.join)(root, "state", "granola-sources.jsonl"),
+    sources: (0, import_node_path.join)(root, "state", "sources.jsonl"),
     secret: (0, import_node_path.join)(root, "state", ".local-key"),
     lock: (0, import_node_path.join)(root, "state", ".ledger.lock")
   };
@@ -7642,7 +7679,6 @@ var TOP_LEVEL_KEYS = /* @__PURE__ */ new Set([
   "organization",
   "sensitive",
   "public_information",
-  "granola",
   "review"
 ]);
 var ORGANIZATION_KEYS = /* @__PURE__ */ new Set(["display_name"]);
@@ -7661,12 +7697,6 @@ var APPROVED_CLAIM_KEYS = /* @__PURE__ */ new Set([
   "text",
   "approved_by",
   "approved_on"
-]);
-var GRANOLA_KEYS = /* @__PURE__ */ new Set([
-  "initial_lookback_days",
-  "overlap_days",
-  "use_transcripts",
-  "include_private_note_text"
 ]);
 var REVIEW_KEYS = /* @__PURE__ */ new Set([
   "approval_expires_minutes",
@@ -7925,14 +7955,6 @@ function validatePolicy(input2) {
       }
     }
   }
-  const granola = input2.granola ?? {};
-  rejectUnknown(granola, GRANOLA_KEYS, "granola", errors);
-  const transcriptMode = granola.use_transcripts ?? defaults.granola.use_transcripts;
-  if (!TRANSCRIPT_MODES.has(transcriptMode)) {
-    errors.push(
-      `granola.use_transcripts must be one of ${[...TRANSCRIPT_MODES].join(", ")}`
-    );
-  }
   const review = input2.review ?? {};
   rejectUnknown(review, REVIEW_KEYS, "review", errors);
   const approvedDomains = readStringArray(
@@ -7972,31 +7994,6 @@ function validatePolicy(input2) {
       approved_domains: approvedDomains,
       approved_claims: claims
     },
-    granola: {
-      initial_lookback_days: readInteger(
-        granola.initial_lookback_days,
-        "granola.initial_lookback_days",
-        errors,
-        { min: 1, max: 90, fallback: defaults.granola.initial_lookback_days }
-      ),
-      overlap_days: readInteger(
-        granola.overlap_days,
-        "granola.overlap_days",
-        errors,
-        {
-          min: 0,
-          max: 14,
-          fallback: defaults.granola.overlap_days
-        }
-      ),
-      use_transcripts: TRANSCRIPT_MODES.has(transcriptMode) ? transcriptMode : defaults.granola.use_transcripts,
-      include_private_note_text: readBoolean(
-        granola.include_private_note_text,
-        "granola.include_private_note_text",
-        errors,
-        defaults.granola.include_private_note_text
-      )
-    },
     review: {
       approval_expires_minutes: readInteger(
         review.approval_expires_minutes,
@@ -8022,11 +8019,6 @@ function validatePolicy(input2) {
       )
     }
   };
-  if (policy.granola.overlap_days >= policy.granola.initial_lookback_days) {
-    errors.push(
-      "granola.overlap_days must be smaller than granola.initial_lookback_days"
-    );
-  }
   if (errors.length) throw new PolicyValidationError(errors);
   return policy;
 }
@@ -8062,10 +8054,6 @@ function defaultPolicy(overrides = {}) {
       category: "confidential_entity"
     }));
   }
-  if (overrides.lookbackDays)
-    base.granola.initial_lookback_days = overrides.lookbackDays;
-  if (overrides.transcriptMode)
-    base.granola.use_transcripts = overrides.transcriptMode;
   if (overrides.approvalMinutes)
     base.review.approval_expires_minutes = overrides.approvalMinutes;
   return validatePolicy(base);
@@ -8190,12 +8178,14 @@ function validateInput(input2) {
   }
   rejectUnknown2(source, /* @__PURE__ */ new Set(["provider", "items"]), "source");
   const provider = validateShortText(
-    source.provider ?? "granola",
+    source.provider ?? "manual",
     "source.provider",
     { max: 40 }
   );
-  if (!(/* @__PURE__ */ new Set(["granola", "manual", "web"])).has(provider)) {
-    throw new Error("source.provider must be granola, manual, or web");
+  if (!(/* @__PURE__ */ new Set(["connected-source", "file", "manual", "web"])).has(provider)) {
+    throw new Error(
+      "source.provider must be connected-source, file, manual, or web"
+    );
   }
   const sourceItems = Array.isArray(source.items) ? source.items : [];
   if (sourceItems.length > 100)
@@ -8620,7 +8610,8 @@ async function consumeApproval(paths, approval, now = /* @__PURE__ */ new Date()
 }
 
 // src/hooks.mjs
-var INGESTION_INTENT = /\b(?:ingest|save (?:this|that)|remember (?:this|that)|granola|meeting notes?|knowledge base|add (?:this|that) to (?:kindling|memory))\b/i;
+var EXPLICIT_INGESTION_INTENT = /\b(?:ingest|transfer (?:this|that|these|the|my|knowledge)|save (?:this|that|these)|remember (?:this|that|these)|add (?:this|that|these) to (?:kindling|supercharge|memory))\b/i;
+var SOURCE_CONTEXT_INTENT = /\b(?:meeting notes?|transcripts?|knowledge source|knowledge base)\b/i;
 function promptContext(message) {
   return {
     hookSpecificOutput: {
@@ -8679,9 +8670,14 @@ async function handleUserPrompt(payload, now = /* @__PURE__ */ new Date()) {
       );
     }
   }
-  if (INGESTION_INTENT.test(prompt2)) {
+  if (EXPLICIT_INGESTION_INTENT.test(prompt2)) {
     return promptContext(
-      "Use the installed kindling-source-ingestion skill. Generate a digest-bound review report and wait for explicit approval before calling Kindling add_knowledge."
+      "The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed kindling-source-ingestion skill, generate a digest-bound review report, and wait for the report's exact approval command before calling Kindling add_knowledge."
+    );
+  }
+  if (SOURCE_CONTEXT_INTENT.test(prompt2)) {
+    return promptContext(
+      "A potential knowledge source is in scope. Offer to review it for business-sensitive information and transfer only safe, durable knowledge to Kindling (Supercharge). Do not inspect additional source material or prepare a transfer until the user says yes. A yes authorizes source review only; the later report approval is still required before add_knowledge."
     );
   }
   return null;
@@ -8877,9 +8873,7 @@ async function coldStart(options) {
       approvalMinutes: config.approval_expires_minutes,
       blockedEntities: config.blocked_entities,
       blockedTopics: config.blocked_topics,
-      lookbackDays: config.initial_lookback_days,
-      organizationName: config.organization_name,
-      transcriptMode: config.use_transcripts
+      organizationName: config.organization_name
     });
   } else if (options.defaults || !process.stdin.isTTY) {
     if (!options.defaults && !process.stdin.isTTY) {
@@ -8905,13 +8899,6 @@ async function coldStart(options) {
         ""
       )
     );
-    const lookbackDays = Number(
-      await prompt("Initial Granola lookback days", "7")
-    );
-    const transcriptMode = await prompt(
-      `Transcript mode (${[...TRANSCRIPT_MODES].join(" | ")})`,
-      "only_when_notes_are_insufficient"
-    );
     const approvalMinutes = Number(
       await prompt("Approval expiry in minutes", "30")
     );
@@ -8919,16 +8906,14 @@ async function coldStart(options) {
       approvalMinutes,
       blockedEntities,
       blockedTopics,
-      lookbackDays,
-      organizationName,
-      transcriptMode
+      organizationName
     });
   }
   await atomicWrite(paths.policy, renderPolicy(policy));
   print(`Created ${paths.policy}`);
   print(`Policy digest: ${policyDigest(policy)}`);
   print(
-    "Next: authenticate both plugin MCP connections, then run the source-ingestion skill in run mode."
+    "Next: connect the Kindling MCP, then run the source-ingestion skill in run mode."
   );
 }
 async function resolveExistingPaths(options) {
@@ -9050,39 +9035,104 @@ function renderCommand([command, args]) {
     )
   ].join(" ");
 }
-async function runCommand(command, args, { allowedNoop = null } = {}) {
-  await new Promise((resolvePromise, reject) => {
+async function runCommand(command, args, { allowedNoop = null, interactive = false, silent = false } = {}) {
+  return new Promise((resolvePromise, reject) => {
     const child = (0, import_node_child_process.spawn)(command, args, {
-      stdio: ["inherit", "pipe", "pipe"],
+      stdio: interactive ? "inherit" : [silent ? "ignore" : "inherit", "pipe", "pipe"],
       shell: false
     });
     let stdout = "";
     let stderr = "";
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-      process.stdout.write(chunk);
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk;
-      process.stderr.write(chunk);
-    });
+    if (child.stdout) {
+      child.stdout.setEncoding("utf8");
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk;
+        if (!silent) process.stdout.write(chunk);
+      });
+    }
+    if (child.stderr) {
+      child.stderr.setEncoding("utf8");
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk;
+        if (!silent) process.stderr.write(chunk);
+      });
+    }
     child.once("error", reject);
     child.once("exit", (code) => {
-      if (code === 0) resolvePromise();
+      if (code === 0) resolvePromise({ stderr, stdout });
       else if (allowedNoop && allowedNoop.test(`${stdout}
 ${stderr}`))
-        resolvePromise();
+        resolvePromise({ stderr, stdout });
       else reject(new Error(`${command} exited with status ${code}`));
     });
   });
+}
+async function connectionStatus(host) {
+  if (host === "claude-code") {
+    const result2 = await runCommand("claude", ["mcp", "list"], {
+      silent: true
+    });
+    return parseClaudeConnectionStatus(`${result2.stdout}
+${result2.stderr}`);
+  }
+  const result = await runCommand("codex", ["mcp", "list", "--json"], {
+    silent: true
+  });
+  return parseCodexConnectionStatus(result.stdout);
+}
+function automaticConnectionEnabled() {
+  const value = String(
+    process.env.CLAUDE_PLUGIN_OPTION_AUTO_CONNECT ?? "true"
+  ).toLowerCase();
+  return !["0", "false", "no", "off"].includes(value);
+}
+async function connectCommand(options) {
+  const target = String(options.target ?? "all");
+  const automatic = Boolean(options.automatic);
+  if (automatic && target !== "claude-code") return;
+  if (automatic && !automaticConnectionEnabled()) return;
+  for (const [host, command, args] of connectionCommands(target)) {
+    let status;
+    try {
+      status = await connectionStatus(host);
+    } catch (error) {
+      if (automatic) return;
+      throw error;
+    }
+    if (status === "connected" && !options.force) {
+      if (!automatic) print(`Kindling is already connected in ${host}.`);
+      continue;
+    }
+    if (automatic && status !== "not_logged_in") return;
+    if (status === "missing") {
+      const expected = host === "claude-code" ? CLAUDE_KINDLING_SERVER : CODEX_KINDLING_SERVER;
+      throw new Error(
+        `Kindling MCP server ${expected} is not installed in ${host}`
+      );
+    }
+    try {
+      await runCommand(command, args, {
+        interactive: !automatic,
+        silent: automatic
+      });
+    } catch (error) {
+      if (automatic) return;
+      throw error;
+    }
+    if (!automatic) print(`Kindling connected in ${host}.`);
+  }
 }
 async function installCommand(options) {
   const target = String(options.target ?? "all");
   const commands = installationCommands(target);
   print("Planned commands:");
   for (const command of commands) print(`  ${renderCommand(command)}`);
+  if (!options["no-connect"]) {
+    print("Kindling sign-in after installation:");
+    for (const [, command, args] of connectionCommands(target)) {
+      print(`  ${renderCommand([command, args])}`);
+    }
+  }
   if (!options.execute) {
     print("Dry run only. Add --execute to run these commands.");
     return;
@@ -9095,11 +9145,15 @@ async function installCommand(options) {
   }
   for (const [command, args] of commands) {
     await runCommand(command, args, {
-      allowedNoop: /already (?:configured|exists|installed|added)|duplicate/i
+      allowedNoop: /already (?:configured|exists|installed|added)|duplicate/i,
+      interactive: command === "claude" && args[0] === "plugin" && args[1] === "install" || command === "codex" && args[0] === "plugin" && args[1] === "add"
     });
   }
+  if (!options["no-connect"]) {
+    await connectCommand({ target });
+  }
   print(
-    "Plugin installed. Open a new host session, trust the plugin hooks, and authenticate Kindling and Granola in the MCP UI."
+    options["no-connect"] ? "Plugin installed. Kindling sign-in was skipped by request." : "Plugin installed and Kindling connection is ready. Open a new host session and trust the plugin hooks when prompted."
   );
 }
 async function uninstallCommand(options) {
@@ -9136,19 +9190,19 @@ async function doctorCommand(options) {
   print(`Policy: ${paths.policy}`);
   print(`Policy digest: ${policyDigest(policy)}`);
   print(`Kindling MCP: ${KINDLING_MCP_URL}`);
-  print(`Granola MCP: ${GRANOLA_MCP_URL}`);
   print(
-    "Claude Code: use /plugins, /hooks, and /mcp to confirm plugin, hook trust, and OAuth status."
+    "Claude Code: Kindling sign-in opens automatically after consent; use /plugins, /hooks, and /mcp for diagnostics."
   );
   print(
-    "Codex: inspect the plugin directory and MCP status; start a new task after installation or update."
+    "Codex: authentication policy is ON_INSTALL; start a new task after installation or update."
   );
 }
 function help() {
   print(`Kindling agent CLI ${PLUGIN_VERSION}
 
 Usage:
-  kindling-agent install --target claude-code|codex|all [--execute --yes]
+  kindling-agent install --target claude-code|codex|all [--execute --yes --no-connect]
+  kindling-agent connect --target claude-code|codex|all [--force]
   kindling-agent cold-start [--defaults | --config-json FILE] [--force]
   kindling-agent policy validate [--path FILE]
   kindling-agent report create --input FILE
@@ -9192,6 +9246,7 @@ async function main() {
   if (command === "audit") return auditCommand(options);
   if (command === "doctor") return doctorCommand(options);
   if (command === "install") return installCommand(options);
+  if (command === "connect") return connectCommand(options);
   if (command === "uninstall") return uninstallCommand(options);
   throw new Error(
     `unknown command: ${[command, subcommand].filter(Boolean).join(" ")}`

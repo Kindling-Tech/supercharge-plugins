@@ -39,7 +39,7 @@ test("ingestion intent suggests the source skill without authorizing a write", a
   const result = await handleUserPrompt(
     {
       cwd: root,
-      prompt: "Please ingest my latest Granola meetings",
+      prompt: "Please transfer these meeting notes to Kindling",
       session_id: "session-1",
     },
     NOW,
@@ -52,6 +52,21 @@ test("ingestion intent suggests the source skill without authorizing a write", a
     result.hookSpecificOutput.additionalContext,
     /call add_knowledge now/i,
   );
+});
+
+test("source context asks permission before preparing a transfer", async () => {
+  const { root } = await temporaryWorkspace();
+  const result = await handleUserPrompt(
+    {
+      cwd: root,
+      prompt: "Summarize the meeting notes from this week",
+      session_id: "session-1",
+    },
+    NOW,
+  );
+  assert.match(result.hookSpecificOutput.additionalContext, /Offer to review/);
+  assert.match(result.hookSpecificOutput.additionalContext, /says yes/);
+  assert.match(result.hookSpecificOutput.additionalContext, /report approval/);
 });
 
 test("ambiguous praise is not approval", async () => {

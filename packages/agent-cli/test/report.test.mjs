@@ -38,7 +38,7 @@ test("report persists exact safe inputs and withholds deterministic findings", a
   assert.equal(report.candidates.length, 1);
   assert.equal(
     report.candidates[0].tool_input.connector_label,
-    "granola-reviewed",
+    "connected-source-reviewed",
   );
   assert.equal(report.candidates[0].tool_input.origin_uri, null);
   assert.ok(
@@ -88,7 +88,7 @@ test("editing a stored report fails integrity validation", async () => {
 test("private origin URI is rejected", async () => {
   const { kindlingDir } = await temporaryWorkspace();
   const input = safeReportInput();
-  input.candidates[0].origin_uri = "https://notes.granola.ai/d/private-id";
+  input.candidates[0].origin_uri = "https://private.example.test/record/id";
   await assert.rejects(
     () => createReport({ kindlingDir, input, now: NOW, reportId: REPORT_ID }),
     /origin_uri must be omitted/,
@@ -106,7 +106,7 @@ test("report records source revision without raw external ID", async () => {
   });
   assert.equal(result.status, "unchanged");
   const ledger = await fileText(paths.sources);
-  assert.doesNotMatch(ledger, /meeting-123/);
+  assert.doesNotMatch(ledger, /record-123/);
   assert.doesNotMatch(ledger, /stable public positioning/);
 });
 

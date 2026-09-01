@@ -26,7 +26,7 @@ export function kindlingPaths(kindlingDir) {
     approvals: join(root, "state", "approvals.jsonl"),
     sent: join(root, "state", "sent.jsonl"),
     failures: join(root, "state", "failures.jsonl"),
-    sources: join(root, "state", "granola-sources.jsonl"),
+    sources: join(root, "state", "sources.jsonl"),
     secret: join(root, "state", ".local-key"),
     lock: join(root, "state", ".ledger.lock"),
   };

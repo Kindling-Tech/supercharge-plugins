@@ -1,20 +1,21 @@
 # Kindling
 
-Kindling is a dual-host plugin for Codex and Claude Code. It connects two
-existing OAuth MCP servers:
+Kindling is a dual-host plugin for Codex and Claude Code. It connects one
+existing OAuth MCP server:
 
 - Kindling workspace: `https://api.kindling.team/mcp`
-- Granola: `https://mcp.granola.ai/mcp`
 
-The plugin does not run or proxy either service.
+The plugin does not run or proxy the service. Knowledge sources are optional:
+the ingestion skill may use notes, files, URLs, or connectors the user already
+authorized in the host, but none are bundled with or required by this plugin.
 
 ## Components
 
 - Two Agent Skills: safe source ingestion and Kindling knowledge MCP usage.
 - A customer-maintained `.kindling/ingestion-policy.yaml`.
 - A deterministic local review/report runtime.
-- Shared `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, and
-  `PostToolUseFailure` hooks.
+- A Claude `SessionStart` connection hook plus shared `UserPromptSubmit`,
+  `PreToolUse`, `PostToolUse`, and `PostToolUseFailure` hooks.
 - Metadata-only local source, approval, sent, and failure ledgers.
 - A compiled Node 20+ runtime; Python is not required.
 
@@ -30,14 +31,14 @@ policy still applies.
 
 ## Privacy
 
-- Raw Granola notes and transcripts are not stored by the plugin.
+- Raw source notes, documents, and transcripts are not stored by the plugin.
 - Reports persist only candidate content that passed deterministic filtering.
 - Withheld content is represented by rule identifiers and counts.
 - Ledgers store hashes, IDs, status, and timestamps, not content.
-- Meeting IDs are HMACed with a local random key.
-- Credentials are managed by each MCP server's browser OAuth flow.
+- Private source record IDs are HMACed with a local random key.
+- Credentials are managed by the Kindling MCP's browser OAuth flow.
 
-The selected Codex or Claude model necessarily receives the Granola content it
+The selected Codex or Claude model necessarily receives the source content it
 is asked to review. The filtering boundary is before Kindling ingestion, not
 before the host model processes the source.
 

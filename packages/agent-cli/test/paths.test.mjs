@@ -11,7 +11,7 @@ test("policy discovery does not escape the nearest repository root", async () =>
   await mkdir(join(parent, ".kindling"));
   await writeFile(
     join(parent, ".kindling/ingestion-policy.yaml"),
-    "schema_version: 1\n",
+    "schema_version: 2\n",
   );
   const repository = join(parent, "repo");
   const nested = join(repository, "src", "feature");

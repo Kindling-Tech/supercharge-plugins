@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 
 organization:
   display_name: Your company
@@ -21,12 +21,6 @@ sensitive:
 public_information:
   approved_domains: []
   approved_claims: []
-
-granola:
-  initial_lookback_days: 7
-  overlap_days: 2
-  use_transcripts: only_when_notes_are_insufficient
-  include_private_note_text: true
 
 review:
   approval_expires_minutes: 30

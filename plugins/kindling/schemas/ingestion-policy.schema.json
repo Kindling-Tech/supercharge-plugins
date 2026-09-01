@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kindling.team/schemas/ingestion-policy-v1.json",
+  "$id": "https://kindling.team/schemas/ingestion-policy-v2.json",
   "title": "Kindling ingestion policy",
   "type": "object",
   "additionalProperties": false,
@@ -9,12 +9,11 @@
     "organization",
     "sensitive",
     "public_information",
-    "granola",
     "review"
   ],
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 2
     },
     "organization": {
       "type": "object",
@@ -99,28 +98,6 @@
             }
           }
         }
-      }
-    },
-    "granola": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "initial_lookback_days",
-        "overlap_days",
-        "use_transcripts",
-        "include_private_note_text"
-      ],
-      "properties": {
-        "initial_lookback_days": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 90
-        },
-        "overlap_days": { "type": "integer", "minimum": 0, "maximum": 14 },
-        "use_transcripts": {
-          "enum": ["never", "only_when_notes_are_insufficient", "always"]
-        },
-        "include_private_note_text": { "type": "boolean" }
       }
     },
     "review": {

@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import YAML from "yaml";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const plugin = resolve(root, "plugins/kindling");
@@ -27,6 +28,12 @@ const claudeMarketplace = await json(
   resolve(root, ".claude-plugin/marketplace.json"),
 );
 const cliPackage = await json(resolve(root, "packages/agent-cli/package.json"));
+const ingestionMetadata = YAML.parse(
+  await readFile(
+    resolve(plugin, "skills/kindling-source-ingestion/agents/openai.yaml"),
+    "utf8",
+  ),
+);
 await json(resolve(plugin, "schemas/ingestion-policy.schema.json"));
 
 assert(codexManifest.name === "kindling", "Codex plugin name mismatch");
@@ -52,11 +59,10 @@ assert(
   "Claude manifest must rely on default hook discovery",
 );
 assert(
-  Object.keys(mcp.mcpServers).sort().join(",") === "granola,kindling",
+  Object.keys(mcp.mcpServers).sort().join(",") === "kindling",
   "MCP set mismatch",
 );
 assert(mcp.mcpServers.kindling.type === "http", "Kindling MCP must be HTTP");
-assert(mcp.mcpServers.granola.type === "http", "Granola MCP must be HTTP");
 assert(
   [...mcp.mcpServers.kindling.enabled_tools].sort().join(",") ===
     ["add_knowledge", "fetch_memory", "get_ingestion_status", "search_memory"]
@@ -69,7 +75,7 @@ assert(
   "Codex add_knowledge must require approval",
 );
 assert(
-  Object.keys(claudeMcp.mcpServers).sort().join(",") === "granola,kindling",
+  Object.keys(claudeMcp.mcpServers).sort().join(",") === "kindling",
   "Claude MCP set mismatch",
 );
 assert(
@@ -77,11 +83,32 @@ assert(
   "Claude MCP config contains Codex fields",
 );
 assert(Boolean(hooks.hooks.UserPromptSubmit), "UserPromptSubmit hook missing");
+assert(Boolean(hooks.hooks.SessionStart), "SessionStart hook missing");
 assert(Boolean(hooks.hooks.PreToolUse), "PreToolUse hook missing");
 assert(Boolean(hooks.hooks.PostToolUse), "PostToolUse hook missing");
 assert(
   Boolean(hooks.hooks.PostToolUseFailure),
   "PostToolUseFailure hook missing",
+);
+assert(
+  claudeManifest.userConfig?.auto_connect?.type === "boolean",
+  "Claude automatic connection preference is missing",
+);
+assert(
+  claudeManifest.userConfig.auto_connect.default === true,
+  "Claude automatic connection must be an opt-out prompt",
+);
+const sessionStartHook = hooks.hooks.SessionStart[0]?.hooks?.[0];
+assert(
+  sessionStartHook?.async === true &&
+    sessionStartHook?.args?.join(" ") ===
+      "${CLAUDE_PLUGIN_ROOT}/dist/kindling-guard.cjs connect --target claude-code --automatic",
+  "Claude startup connection hook is not canonical",
+);
+assert(
+  codexMarketplace.plugins.find((entry) => entry.name === "kindling")?.policy
+    ?.authentication === "ON_INSTALL",
+  "Codex Kindling authentication must run on install",
 );
 assert(
   codexMarketplace.plugins.some((entry) => entry.name === "kindling"),
@@ -99,6 +126,11 @@ assert(!cliPackage.scripts?.postinstall, "postinstall is forbidden");
 assert(
   !cliPackage.dependencies || Object.keys(cliPackage.dependencies).length === 0,
   "published CLI must not install runtime dependencies",
+);
+assert(
+  ingestionMetadata.dependencies?.tools?.length === 1 &&
+    ingestionMetadata.dependencies.tools[0]?.value === "kindling",
+  "source ingestion must depend only on the Kindling MCP",
 );
 
 const skillNames = ["kindling-mcp", "kindling-source-ingestion"];

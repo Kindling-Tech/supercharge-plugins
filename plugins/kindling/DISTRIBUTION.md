@@ -30,8 +30,8 @@ migration notes and the appropriate version bump.
 8. Test local Claude loading with `--plugin-dir`.
 9. Test a repo-local Codex marketplace installation in an isolated home/config
    directory.
-10. Test both OAuth flows with non-production accounts; never place credentials
-    in fixtures or logs.
+10. Test the Kindling OAuth flow in both hosts with a non-production account;
+    never place credentials in fixtures or logs.
 11. Test an unapproved write, exact approved write, changed write, success
     receipt, and failed retry.
 12. Publish the npm package with provenance and publish the marketplace commit.
@@ -48,5 +48,5 @@ migration notes and the appropriate version bump.
   approvals, write success/failure, and plugin version.
 - Never add telemetry that contains prompts, notes, transcripts, candidate
   content, customer terms, or policy entries.
-- Re-run official Codex, Claude Code, Granola, and Agent Skills documentation
+- Re-run official Codex, Claude Code, MCP OAuth, and Agent Skills documentation
   checks before each minor or major release.

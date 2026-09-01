@@ -6,7 +6,7 @@
     {
       "name": "kindling",
       "source": "./plugins/kindling",
-      "description": "Review Granola sources, filter sensitive information, and ingest only approved knowledge into Kindling.",
+      "description": "Review user-approved sources, filter sensitive information, and ingest only approved knowledge into Kindling.",
       "category": "integrations"
     }
   ]

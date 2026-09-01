@@ -1,6 +1,6 @@
 ---
 name: kindling-source-ingestion
-description: Safely review Granola notes or another external source for durable, public-marketing-safe knowledge; configure the customer policy, filter sensitive information, format exact Kindling payloads, obtain approval, and ingest. Use for ingestion setup, new-source review, Granola processing, or requests to save external material. Do not use for ordinary Kindling recall or unrelated platform features.
+description: Safely review a user-approved knowledge source for durable, public-marketing-safe knowledge; configure the customer policy, filter sensitive information, format exact Kindling payloads, obtain approval, and ingest. Use when notes, meetings, documents, URLs, files, or another connected source may be worth transferring to Kindling. Do not use for ordinary Kindling recall or unrelated platform features.
 ---
 
 # Kindling source ingestion
@@ -14,8 +14,10 @@ Use this skill in one of two modes: `cold-start` or `run`. Never call Kindling
 - Keep only durable knowledge whose exact final wording would be safe to publish
   through the customer's public marketing today.
 - The customer policy can add exclusions; it cannot weaken this baseline.
-- Never send raw transcripts, private notes, participant names, private source
-  links, or withheld excerpts to Kindling.
+- Never send raw transcripts, private notes, identities, private source links,
+  or withheld excerpts to Kindling.
+- A connected source is optional and never bundled by this plugin. Do not ask
+  the user to copy credentials or install a particular source integration.
 - One approved candidate becomes one `add_knowledge` call.
 - A successful call is one-shot. Record its source ID and never submit it again.
 
@@ -33,8 +35,6 @@ before generating or approving a report.
    - organization display name;
    - confidential customer, project, product, and partner names;
    - additional sensitive topics;
-   - Granola lookback period;
-   - whether transcripts may be used when notes are insufficient;
    - approval expiry.
 3. Use the answers to run the bundled `cold-start --config-json` command. Resolve
    `scripts/kindling.cjs` relative to this skill directory. Never place
@@ -42,8 +42,8 @@ before generating or approving a report.
 4. Validate the resulting policy with `policy validate`.
 5. Explain that `.kindling/reports/` and `.kindling/state/` are local and
    gitignored, while the policy may be maintained by the customer.
-6. Confirm both MCP servers are connected. Granola and Kindling use browser
-   OAuth; do not request copied tokens.
+6. Confirm the Kindling MCP is connected through browser OAuth. It is the only
+   MCP required by this plugin; do not request copied tokens.
 7. Run a dry review before the first real write.
 
 If the user invokes the CLI directly, `kindling-agent cold-start` provides the
@@ -56,15 +56,26 @@ same interactive wizard.
 1. Validate the customer policy.
 2. Confirm the plugin hooks are trusted and active. If the write guard is not
    active, do not perform an ingestion write.
-3. Call Granola `get_account_info`. Show the connected account and active
-   workspace, then stop if the user identifies either as wrong.
-4. Follow [granola-workflow.md](references/granola-workflow.md) to enumerate
-   new or changed meetings. Prefer notes; fetch transcripts only when the policy
-   permits and notes do not establish the candidate.
+3. Identify only the source capabilities already available in the host. Do not
+   call a source tool merely to discover whether it exists.
+4. If the user is working with a likely knowledge source, ask one clear
+   question before reading more or preparing a transfer:
+
+   > I can review this source for business-sensitive information and prepare
+   > the safe, durable parts for Kindling (Supercharge). Would you like me to?
+
+   An explicit request to review, ingest, or transfer named material already
+   counts as yes; do not ask the same question again.
+
+5. If the user declines, stop. If they agree, confirm the minimum source scope
+   needed, such as selected documents, meetings, records, or a date range.
+6. Follow [source-workflow.md](references/source-workflow.md) to read only that
+   scope and identify new or changed source material. Accept pasted text, local
+   files, public URLs, or any source connector the user already authorized.
 
 ### 2. Extract and filter
 
-For each new or changed source:
+For each approved, new, or changed source:
 
 1. Separate durable claims from logistics, tasks, conversation, and one-off
    details.

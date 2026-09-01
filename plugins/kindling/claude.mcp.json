@@ -3,10 +3,6 @@
     "kindling": {
       "type": "http",
       "url": "https://api.kindling.team/mcp"
-    },
-    "granola": {
-      "type": "http",
-      "url": "https://mcp.granola.ai/mcp"
     }
   }
 }

@@ -54,7 +54,7 @@ try {
     "kindling-agent",
     "version",
   ]);
-  if (result.stdout.trim() !== "1.0.0") {
+  if (result.stdout.trim() !== "1.1.0") {
     throw new Error(
       `unexpected npx version output: ${JSON.stringify(result.stdout)}`,
     );

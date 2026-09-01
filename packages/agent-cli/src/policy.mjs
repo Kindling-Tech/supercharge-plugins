@@ -8,7 +8,6 @@ import {
   MAX_POLICY_TEXT_LENGTH,
   POLICY_SCHEMA_VERSION,
   REMOVE_DATA_TYPES,
-  TRANSCRIPT_MODES,
 } from "./constants.mjs";
 import { canonicalize, sha256 } from "./canonical.mjs";
 
@@ -17,7 +16,6 @@ const TOP_LEVEL_KEYS = new Set([
   "organization",
   "sensitive",
   "public_information",
-  "granola",
   "review",
 ]);
 const ORGANIZATION_KEYS = new Set(["display_name"]);
@@ -36,12 +34,6 @@ const APPROVED_CLAIM_KEYS = new Set([
   "text",
   "approved_by",
   "approved_on",
-]);
-const GRANOLA_KEYS = new Set([
-  "initial_lookback_days",
-  "overlap_days",
-  "use_transcripts",
-  "include_private_note_text",
 ]);
 const REVIEW_KEYS = new Set([
   "approval_expires_minutes",
@@ -331,16 +323,6 @@ export function validatePolicy(input) {
     }
   }
 
-  const granola = input.granola ?? {};
-  rejectUnknown(granola, GRANOLA_KEYS, "granola", errors);
-  const transcriptMode =
-    granola.use_transcripts ?? defaults.granola.use_transcripts;
-  if (!TRANSCRIPT_MODES.has(transcriptMode)) {
-    errors.push(
-      `granola.use_transcripts must be one of ${[...TRANSCRIPT_MODES].join(", ")}`,
-    );
-  }
-
   const review = input.review ?? {};
   rejectUnknown(review, REVIEW_KEYS, "review", errors);
 
@@ -385,33 +367,6 @@ export function validatePolicy(input) {
       approved_domains: approvedDomains,
       approved_claims: claims,
     },
-    granola: {
-      initial_lookback_days: readInteger(
-        granola.initial_lookback_days,
-        "granola.initial_lookback_days",
-        errors,
-        { min: 1, max: 90, fallback: defaults.granola.initial_lookback_days },
-      ),
-      overlap_days: readInteger(
-        granola.overlap_days,
-        "granola.overlap_days",
-        errors,
-        {
-          min: 0,
-          max: 14,
-          fallback: defaults.granola.overlap_days,
-        },
-      ),
-      use_transcripts: TRANSCRIPT_MODES.has(transcriptMode)
-        ? transcriptMode
-        : defaults.granola.use_transcripts,
-      include_private_note_text: readBoolean(
-        granola.include_private_note_text,
-        "granola.include_private_note_text",
-        errors,
-        defaults.granola.include_private_note_text,
-      ),
-    },
     review: {
       approval_expires_minutes: readInteger(
         review.approval_expires_minutes,
@@ -438,11 +393,6 @@ export function validatePolicy(input) {
     },
   };
 
-  if (policy.granola.overlap_days >= policy.granola.initial_lookback_days) {
-    errors.push(
-      "granola.overlap_days must be smaller than granola.initial_lookback_days",
-    );
-  }
   if (errors.length) throw new PolicyValidationError(errors);
   return policy;
 }
@@ -482,10 +432,6 @@ export function defaultPolicy(overrides = {}) {
       category: "confidential_entity",
     }));
   }
-  if (overrides.lookbackDays)
-    base.granola.initial_lookback_days = overrides.lookbackDays;
-  if (overrides.transcriptMode)
-    base.granola.use_transcripts = overrides.transcriptMode;
   if (overrides.approvalMinutes)
     base.review.approval_expires_minutes = overrides.approvalMinutes;
   return validatePolicy(base);

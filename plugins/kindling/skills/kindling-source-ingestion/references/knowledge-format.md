@@ -26,8 +26,8 @@ from one identified customer.
   approved.
 - Do not add conclusions that the source does not establish.
 - Keep `title` specific but non-sensitive.
-- Set `connector_label` to `granola-reviewed` for Granola or
-  `manual-reviewed` for user-provided material.
+- Set `connector_label` from the report provider: `connected-source-reviewed`,
+  `file-reviewed`, `web-reviewed`, or `manual-reviewed`.
 - Set `origin_uri` to null. Private source URLs are not sent.
 
 The report must show these exact four tool fields: `content`, `title`,

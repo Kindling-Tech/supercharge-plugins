@@ -54,12 +54,14 @@ function validateInput(input) {
   }
   rejectUnknown(source, new Set(["provider", "items"]), "source");
   const provider = validateShortText(
-    source.provider ?? "granola",
+    source.provider ?? "manual",
     "source.provider",
     { max: 40 },
   );
-  if (!new Set(["granola", "manual", "web"]).has(provider)) {
-    throw new Error("source.provider must be granola, manual, or web");
+  if (!new Set(["connected-source", "file", "manual", "web"]).has(provider)) {
+    throw new Error(
+      "source.provider must be connected-source, file, manual, or web",
+    );
   }
   const sourceItems = Array.isArray(source.items) ? source.items : [];
   if (sourceItems.length > 100)
