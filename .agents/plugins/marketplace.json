@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "kindling-ingest",
+      "name": "kindling",
       "source": {
         "source": "local",
-        "path": "./plugins/kindling-ingest"
+        "path": "./plugins/kindling"
       },
       "policy": {
         "installation": "AVAILABLE",

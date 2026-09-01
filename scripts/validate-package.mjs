@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const plugin = resolve(root, "plugins/kindling-ingest");
+const plugin = resolve(root, "plugins/kindling");
 
 async function json(path) {
   return JSON.parse(await readFile(path, "utf8"));
@@ -29,11 +29,8 @@ const claudeMarketplace = await json(
 const cliPackage = await json(resolve(root, "packages/agent-cli/package.json"));
 await json(resolve(plugin, "schemas/ingestion-policy.schema.json"));
 
-assert(codexManifest.name === "kindling-ingest", "Codex plugin name mismatch");
-assert(
-  claudeManifest.name === "kindling-ingest",
-  "Claude plugin name mismatch",
-);
+assert(codexManifest.name === "kindling", "Codex plugin name mismatch");
+assert(claudeManifest.name === "kindling", "Claude plugin name mismatch");
 assert(
   codexManifest.version === claudeManifest.version,
   "plugin manifest versions differ",
@@ -87,11 +84,11 @@ assert(
   "PostToolUseFailure hook missing",
 );
 assert(
-  codexMarketplace.plugins.some((entry) => entry.name === "kindling-ingest"),
+  codexMarketplace.plugins.some((entry) => entry.name === "kindling"),
   "Codex marketplace entry missing",
 );
 assert(
-  claudeMarketplace.plugins.some((entry) => entry.name === "kindling-ingest"),
+  claudeMarketplace.plugins.some((entry) => entry.name === "kindling"),
   "Claude marketplace entry missing",
 );
 assert(
@@ -126,10 +123,7 @@ assert(
 );
 await stat(resolve(plugin, "dist/kindling-guard.cjs"));
 await stat(
-  resolve(
-    plugin,
-    "skills/kindling-source-ingestion/scripts/kindling-ingest.cjs",
-  ),
+  resolve(plugin, "skills/kindling-source-ingestion/scripts/kindling.cjs"),
 );
 
 console.log("package validation passed");

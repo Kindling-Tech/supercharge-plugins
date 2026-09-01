@@ -1,5 +1,5 @@
 {
-  "name": "kindling-ingest",
+  "name": "kindling",
   "version": "1.0.0",
   "description": "Review and safely ingest durable source knowledge into Kindling.",
   "author": {
@@ -12,7 +12,7 @@
   "keywords": ["kindling", "granola", "mcp", "knowledge", "ingestion"],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Kindling Ingest",
+    "displayName": "Kindling",
     "shortDescription": "Review and safely ingest source knowledge",
     "longDescription": "Connect Granola and Kindling, filter private information, review exact knowledge payloads, and ingest only approved content.",
     "developerName": "Kindling",

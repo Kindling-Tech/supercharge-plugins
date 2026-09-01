@@ -12,10 +12,10 @@
     "test:legacy": "python3 -m pytest -q supercharge-ingest/tests",
     "validate:skills": "python3 scripts/validate-skills.mjs.py",
     "validate:package": "node scripts/validate-package.mjs",
-    "check:moat": "bash plugins/kindling-ingest/scripts/check_moat.sh",
+    "check:moat": "bash plugins/kindling/scripts/check_moat.sh",
     "smoke:npx": "node scripts/smoke-npx.mjs",
-    "format": "prettier --write plugins/kindling-ingest packages/agent-cli scripts/*.mjs package.json README.md docs/tasks .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
-    "format:check": "prettier --check plugins/kindling-ingest packages/agent-cli scripts/*.mjs package.json README.md docs/tasks .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
+    "format": "prettier --write plugins/kindling packages/agent-cli scripts/*.mjs package.json README.md docs/tasks .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
+    "format:check": "prettier --check plugins/kindling packages/agent-cli scripts/*.mjs package.json README.md docs/tasks .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
     "check": "npm run build && npm test && npm run test:legacy && npm run validate:skills && npm run validate:package && npm run format:check && npm run check:moat && npm run smoke:npx"
   },
   "devDependencies": {

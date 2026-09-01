@@ -1,4 +1,4 @@
-# Kindling Ingest Plugin — End-to-End Build Task
+# Kindling Plugin — End-to-End Build Task
 
 **Status:** Complete
 
@@ -52,7 +52,7 @@ contain exactly two clean-room skills:
 
 - [x] Repo-local Codex marketplace at `.agents/plugins/marketplace.json`.
 - [x] Updated Claude marketplace at `.claude-plugin/marketplace.json`.
-- [x] Plugin at `plugins/kindling-ingest/`.
+- [x] Plugin at `plugins/kindling/`.
 - [x] `.codex-plugin/plugin.json` with interface metadata and MCP path.
 - [x] `.claude-plugin/plugin.json` with skills, default hook discovery, and MCP path.
 - [x] Separate Claude and Codex MCP config shapes for Kindling and Granola.
@@ -152,7 +152,7 @@ contain exactly two clean-room skills:
 - Claude plugin and marketplace validators passed.
 - Real Claude install reported 2 skills, 4 hooks, and 2 MCP servers; both remote
   servers reached the expected OAuth-required state.
-- Real Codex local-marketplace install produced `kindling-ingest@supercharge`
+- Real Codex local-marketplace install produced `kindling@supercharge`
   version `1.0.0` and a validation-clean cache artifact.
 - Temporary test installations and marketplace registrations were removed from
   both host configurations after verification.

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { sourceContentDigest } from "../src/sources.mjs";
 
 const root = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
-const cli = join(root, "plugins/kindling-ingest/dist/kindling-guard.cjs");
+const cli = join(root, "plugins/kindling/dist/kindling-guard.cjs");
 
 async function run(args, { cwd, stdin = "" }) {
   return new Promise((resolvePromise, reject) => {

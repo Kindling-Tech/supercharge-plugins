@@ -44,21 +44,15 @@ test("install is dry-run by default and emits real host commands", async () => {
     result.stdout,
     /claude plugin marketplace add Kindling-Tech\/supercharge-plugins/,
   );
-  assert.match(result.stdout, /codex plugin add kindling-ingest@supercharge/);
+  assert.match(result.stdout, /codex plugin add kindling@supercharge/);
   assert.match(result.stdout, /Dry run only/);
 });
 
 test("uninstall uses host-valid marketplace-qualified selectors", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "kindling-cli-"));
   const result = await run(["uninstall", "--target", "all"], cwd);
-  assert.match(
-    result.stdout,
-    /claude plugin uninstall kindling-ingest@supercharge/,
-  );
-  assert.match(
-    result.stdout,
-    /codex plugin remove kindling-ingest@supercharge/,
-  );
+  assert.match(result.stdout, /claude plugin uninstall kindling@supercharge/);
+  assert.match(result.stdout, /codex plugin remove kindling@supercharge/);
   assert.match(result.stdout, /Dry run only/);
 });
 

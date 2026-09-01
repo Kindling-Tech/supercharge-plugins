@@ -1,5 +1,5 @@
 {
-  "name": "kindling-ingest",
+  "name": "kindling",
   "version": "1.0.0",
   "description": "Review and safely ingest durable source knowledge into Kindling.",
   "author": {

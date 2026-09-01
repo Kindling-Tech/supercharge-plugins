@@ -7,9 +7,9 @@ This repository is both:
 - a Claude Code marketplace at `.claude-plugin/marketplace.json`; and
 - a Codex marketplace at `.agents/plugins/marketplace.json`.
 
-## Kindling Ingest
+## Kindling
 
-`kindling-ingest` connects the existing Kindling and Granola remote MCP servers
+`kindling` connects the existing Kindling and Granola remote MCP servers
 and ships exactly two clean-room skills:
 
 - `kindling-source-ingestion` safely reviews external sources, filters sensitive
@@ -18,8 +18,8 @@ and ships exactly two clean-room skills:
 - `kindling-mcp` teaches the public Kindling knowledge tool contract.
 
 The plugin contains no Kindling backend code or private prompt material. See
-[`plugins/kindling-ingest/README.md`](plugins/kindling-ingest/README.md) and
-[`plugins/kindling-ingest/INSTALL.md`](plugins/kindling-ingest/INSTALL.md).
+[`plugins/kindling/README.md`](plugins/kindling/README.md) and
+[`plugins/kindling/INSTALL.md`](plugins/kindling/INSTALL.md).
 
 ### Install with the CLI
 
@@ -33,18 +33,22 @@ The install command is a dry run unless `--execute` is supplied.
 
 ```bash
 claude plugin marketplace add Kindling-Tech/supercharge-plugins
-claude plugin install kindling-ingest@supercharge --scope user
+claude plugin install kindling@supercharge --scope user
 ```
 
 ### Codex
 
 ```bash
 codex plugin marketplace add Kindling-Tech/supercharge-plugins
-codex plugin add kindling-ingest@supercharge
+codex plugin add kindling@supercharge
 ```
 
 After installation, start a new session, review/trust the plugin hooks, and
 authenticate the Kindling and Granola MCP connections in the host UI.
+
+If you installed the earlier `kindling-ingest@supercharge` build, remove it
+before installing `kindling@supercharge`; plugin IDs are cache and namespace
+bound, so this rename is intentionally a new installation.
 
 ## Legacy plugin
 
@@ -60,4 +64,4 @@ npm run check
 ```
 
 The detailed internal build task is tracked in
-[`docs/tasks/2026-08-31-kindling-ingest-plugin.md`](docs/tasks/2026-08-31-kindling-ingest-plugin.md).
+[`docs/tasks/2026-08-31-kindling-plugin.md`](docs/tasks/2026-08-31-kindling-plugin.md).

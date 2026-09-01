@@ -1,6 +1,6 @@
-# Kindling Ingest
+# Kindling
 
-Kindling Ingest is a dual-host plugin for Codex and Claude Code. It connects two
+Kindling is a dual-host plugin for Codex and Claude Code. It connects two
 existing OAuth MCP servers:
 
 - Kindling workspace: `https://api.kindling.team/mcp`

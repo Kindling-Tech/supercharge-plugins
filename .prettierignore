@@ -1,4 +1,4 @@
 node_modules/
 packages/agent-cli/dist/
-plugins/kindling-ingest/dist/
-plugins/kindling-ingest/skills/kindling-source-ingestion/scripts/kindling-ingest.cjs
+plugins/kindling/dist/
+plugins/kindling/skills/kindling-source-ingestion/scripts/kindling.cjs

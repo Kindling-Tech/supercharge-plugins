@@ -275,7 +275,7 @@ function installationCommands(target) {
     ]);
     commands.push([
       "claude",
-      ["plugin", "install", "kindling-ingest@supercharge", "--scope", "user"],
+      ["plugin", "install", "kindling@supercharge", "--scope", "user"],
     ]);
   }
   if (target === "codex" || target === "all") {
@@ -283,7 +283,7 @@ function installationCommands(target) {
       "codex",
       ["plugin", "marketplace", "add", "Kindling-Tech/supercharge-plugins"],
     ]);
-    commands.push(["codex", ["plugin", "add", "kindling-ingest@supercharge"]]);
+    commands.push(["codex", ["plugin", "add", "kindling@supercharge"]]);
   }
   if (!commands.length)
     throw new Error("--target must be claude-code, codex, or all");
@@ -358,16 +358,10 @@ async function uninstallCommand(options) {
   const target = String(options.target ?? "all");
   const commands = [];
   if (target === "claude-code" || target === "all") {
-    commands.push([
-      "claude",
-      ["plugin", "uninstall", "kindling-ingest@supercharge"],
-    ]);
+    commands.push(["claude", ["plugin", "uninstall", "kindling@supercharge"]]);
   }
   if (target === "codex" || target === "all") {
-    commands.push([
-      "codex",
-      ["plugin", "remove", "kindling-ingest@supercharge"],
-    ]);
+    commands.push(["codex", ["plugin", "remove", "kindling@supercharge"]]);
   }
   if (!commands.length)
     throw new Error("--target must be claude-code, codex, or all");

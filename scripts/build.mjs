@@ -7,10 +7,10 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const entry = resolve(root, "packages/agent-cli/src/cli.mjs");
 const outputs = [
   resolve(root, "packages/agent-cli/dist/kindling-agent.cjs"),
-  resolve(root, "plugins/kindling-ingest/dist/kindling-guard.cjs"),
+  resolve(root, "plugins/kindling/dist/kindling-guard.cjs"),
   resolve(
     root,
-    "plugins/kindling-ingest/skills/kindling-source-ingestion/scripts/kindling-ingest.cjs",
+    "plugins/kindling/skills/kindling-source-ingestion/scripts/kindling.cjs",
   ),
 ];
 

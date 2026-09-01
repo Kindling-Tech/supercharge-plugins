@@ -4,8 +4,8 @@
   "owner": { "name": "Supercharge", "url": "https://supercharge.so" },
   "plugins": [
     {
-      "name": "kindling-ingest",
-      "source": "./plugins/kindling-ingest",
+      "name": "kindling",
+      "source": "./plugins/kindling",
       "description": "Review Granola sources, filter sensitive information, and ingest only approved knowledge into Kindling.",
       "category": "integrations"
     }

@@ -2,10 +2,14 @@
 
 ## Source layout
 
-The plugin source is `plugins/kindling-ingest`. Claude Code discovers it from
+The plugin source is `plugins/kindling`. Claude Code discovers it from
 `.claude-plugin/marketplace.json`; Codex discovers it from
 `.agents/plugins/marketplace.json`. Both entries use the stable plugin name
-`kindling-ingest` and marketplace name `supercharge`.
+`kindling` and marketplace name `supercharge`.
+
+This release renames the previous `kindling-ingest` plugin ID. Treat it as a
+new installation in both hosts; the marketplace does not publish both IDs in
+parallel because that would expose duplicate skills, hooks, and MCP servers.
 
 ## Versioning
 
@@ -20,7 +24,7 @@ migration notes and the appropriate version bump.
 2. Run `npm ci` from a clean checkout.
 3. Run `npm run check`.
 4. Run the Codex plugin validator.
-5. Run `claude plugin validate ./plugins/kindling-ingest`.
+5. Run `claude plugin validate ./plugins/kindling`.
 6. Inspect `npm pack --dry-run --workspace @kindling/agent`.
 7. Inspect a clean `git archive` of the plugin and run the moat check against it.
 8. Test local Claude loading with `--plugin-dir`.

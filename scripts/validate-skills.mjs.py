@@ -13,7 +13,7 @@ VALIDATOR = Path.home() / ".codex/skills/.system/skill-creator/scripts/quick_val
 
 
 def main() -> int:
-    skills = sorted((ROOT / "plugins/kindling-ingest/skills").glob("*/SKILL.md"))
+    skills = sorted((ROOT / "plugins/kindling/skills").glob("*/SKILL.md"))
     if len(skills) != 2:
         print(f"expected exactly 2 skills, found {len(skills)}", file=sys.stderr)
         return 1

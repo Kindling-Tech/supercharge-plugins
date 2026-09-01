@@ -1,4 +1,4 @@
-# Install Kindling Ingest
+# Install Kindling
 
 ## Requirements
 
@@ -9,6 +9,19 @@
   support.
 
 No API token, OAuth client secret, or environment variable is required.
+
+## Rename migration
+
+If the previous plugin ID is installed, remove it first:
+
+```bash
+claude plugin uninstall kindling-ingest@supercharge
+codex plugin remove kindling-ingest@supercharge
+```
+
+Then install `kindling@supercharge` using the instructions below. Existing
+project `.kindling/` policy and audit data are not tied to the plugin ID and are
+preserved.
 
 ## Install with `npx`
 
@@ -30,29 +43,29 @@ Non-interactive execution also requires `--yes`.
 
 ```bash
 claude plugin marketplace add Kindling-Tech/supercharge-plugins
-claude plugin install kindling-ingest@supercharge --scope user
+claude plugin install kindling@supercharge --scope user
 ```
 
 Start a new Claude Code session. Then:
 
-1. Run `/plugins` and confirm `kindling-ingest@supercharge` is enabled.
+1. Run `/plugins` and confirm `kindling@supercharge` is enabled.
 2. Run `/hooks`, inspect the four plugin hooks, and trust them.
 3. Run `/mcp`, approve the plugin-provided Kindling and Granola servers, and
    complete both browser OAuth flows.
-4. Run `/kindling-ingest:kindling-source-ingestion cold-start`.
+4. Run `/kindling:kindling-source-ingestion cold-start`.
 
 Validate a local checkout during development:
 
 ```bash
-claude plugin validate ./plugins/kindling-ingest
-claude --plugin-dir ./plugins/kindling-ingest
+claude plugin validate ./plugins/kindling
+claude --plugin-dir ./plugins/kindling
 ```
 
 ## Codex
 
 ```bash
 codex plugin marketplace add Kindling-Tech/supercharge-plugins
-codex plugin add kindling-ingest@supercharge
+codex plugin add kindling@supercharge
 ```
 
 Start a new Codex task so it loads the installed plugin. Review and trust the

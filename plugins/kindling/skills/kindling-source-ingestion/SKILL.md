@@ -37,7 +37,7 @@ before generating or approving a report.
    - whether transcripts may be used when notes are insufficient;
    - approval expiry.
 3. Use the answers to run the bundled `cold-start --config-json` command. Resolve
-   `scripts/kindling-ingest.cjs` relative to this skill directory. Never place
+   `scripts/kindling.cjs` relative to this skill directory. Never place
    credentials or source text in command-line arguments.
 4. Validate the resulting policy with `policy validate`.
 5. Explain that `.kindling/reports/` and `.kindling/state/` are local and
