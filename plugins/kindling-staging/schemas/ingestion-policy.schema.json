@@ -23,7 +23,8 @@
         "display_name": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 500
+          "maxLength": 500,
+          "description": "Local non-routing label; the authenticated OAuth credential determines the Kindling company."
         }
       }
     },

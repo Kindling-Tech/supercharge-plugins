@@ -74,6 +74,36 @@ whether it should connect, then opens the same browser OAuth flow on startup.
 The ingestion skill can use sources the user already connected to the host, but
 the plugin does not install or require any source connector.
 
+## Updates
+
+Production and staging are versioned together. Every release uses one explicit
+semantic version across the npm package and both Codex and Claude plugin
+manifests.
+
+Codex automatically checks configured Git marketplaces at startup and refreshes
+installed plugin caches when the marketplace changes. Start a new task to load
+the complete new version. To force an immediate refresh:
+
+```bash
+codex plugin marketplace upgrade supercharge
+codex plugin add kindling@supercharge
+codex plugin add kindling-staging@supercharge
+```
+
+Claude Code supports startup auto-updates, but disables them by default for
+third-party marketplaces. Enable it once from `/plugin` > Marketplaces >
+`supercharge` > Enable auto-update. To update immediately:
+
+```bash
+claude plugin marketplace update supercharge
+claude plugin update kindling@supercharge --scope user
+claude plugin update kindling-staging@supercharge --scope user
+```
+
+Restart the host or open a new task/session after updating. A marketplace push
+without a manifest version bump is intentionally ignored, so the release gate
+checks that all manifest, package, and lockfile versions agree.
+
 If you installed the earlier `kindling-ingest@supercharge` build, remove it
 before installing `kindling@supercharge`; plugin IDs are cache and namespace
 bound, so this rename is intentionally a new installation.

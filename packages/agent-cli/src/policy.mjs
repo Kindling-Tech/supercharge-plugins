@@ -422,8 +422,6 @@ export function renderPolicy(policy) {
 
 export function defaultPolicy(overrides = {}) {
   const base = cloneDefaults();
-  if (overrides.organizationName)
-    base.organization.display_name = overrides.organizationName;
   if (overrides.blockedTopics)
     base.sensitive.blocked_topics = overrides.blockedTopics;
   if (overrides.blockedEntities) {

@@ -21,6 +21,9 @@ Use this skill in one of two modes: `cold-start` or `run`. Never call Kindling
   or withheld excerpts to Kindling.
 - A connected source is optional and never bundled by this plugin. Do not ask
   the user to copy credentials or install a particular source integration.
+- The company selected during Kindling Staging browser OAuth is the only tenant
+  authority. Never ask for or infer a company name for routing; the local
+  ingestion policy cannot change the connected company.
 - One approved candidate becomes one `add_knowledge` call.
 - A successful call is one-shot. Record its source ID and never submit it again.
 
@@ -29,19 +32,26 @@ source material. Read [knowledge-format.md](references/knowledge-format.md)
 before drafting candidates. Read [review-protocol.md](references/review-protocol.md)
 before generating or approving a report.
 
+## Bundled CLI
+
+The canonical bundled CLI is `../../dist/kindling-staging-guard.cjs`, resolved
+relative to the directory containing this `SKILL.md`. Invoke it as
+`node <resolved-path> <command>`. Never resolve it from the workspace or current
+working directory.
+
 ## Cold-start mode
 
 1. Check for `.kindling/ingestion-policy.yaml` from the current directory up to
    the workspace root. If it exists, validate it with the bundled script rather
    than replacing it.
-2. Ask the customer, one decision at a time, for:
-   - organization display name;
+2. Ask the customer, one decision at a time and only when not already supplied,
+   for:
    - confidential customer, project, product, and partner names;
    - additional sensitive topics;
    - approval expiry.
-3. Use the answers to run the bundled `cold-start --config-json` command. Resolve
-   `scripts/kindling-staging.cjs` relative to this skill directory. Never place
-   credentials or source text in command-line arguments.
+3. Use the answers to run the bundled `cold-start --config-json` command with
+   the canonical CLI above. Never place credentials or source text in
+   command-line arguments.
 4. Validate the resulting policy with `policy validate`.
 5. Explain that `.kindling/reports/staging/` and `.kindling/state/staging/` are
    local and gitignored, while the shared policy may be maintained by the customer.

@@ -94,6 +94,25 @@ To reopen sign-in directly:
 npx @kindling/agent connect --target codex
 ```
 
+## Updates
+
+This plugin uses explicit semantic versions. Codex checks configured Git
+marketplaces at startup. Claude Code users must enable auto-update once from
+`/plugin` > Marketplaces > `supercharge` > Enable auto-update because
+third-party marketplace auto-update is disabled by default.
+
+Force an immediate production update with:
+
+```bash
+codex plugin marketplace upgrade supercharge
+codex plugin add kindling@supercharge
+claude plugin marketplace update supercharge
+claude plugin update kindling@supercharge --scope user
+```
+
+Open a new task or session after updating so one conversation never mixes
+plugin versions.
+
 ## Customer policy
 
 Cold start creates:

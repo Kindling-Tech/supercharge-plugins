@@ -8120,7 +8120,7 @@ var import_node_path3 = require("node:path");
 var import_yaml2 = __toESM(require_dist(), 1);
 
 // src/constants.mjs
-var PLUGIN_VERSION = "1.2.0";
+var PLUGIN_VERSION = "1.2.1";
 var POLICY_SCHEMA_VERSION = 2;
 var CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;
 var APPROVAL_TTL_MIN = 5;
@@ -8140,7 +8140,7 @@ var REMOVE_DATA_TYPES = /* @__PURE__ */ new Set([
 ]);
 var DEFAULT_POLICY = Object.freeze({
   schema_version: POLICY_SCHEMA_VERSION,
-  organization: { display_name: "Your company" },
+  organization: { display_name: "OAuth-connected Kindling workspace" },
   sensitive: {
     blocked_topics: [],
     blocked_entities: [],
@@ -8953,8 +8953,6 @@ function renderPolicy(policy) {
 }
 function defaultPolicy(overrides = {}) {
   const base = cloneDefaults();
-  if (overrides.organizationName)
-    base.organization.display_name = overrides.organizationName;
   if (overrides.blockedTopics)
     base.sensitive.blocked_topics = overrides.blockedTopics;
   if (overrides.blockedEntities) {
@@ -9951,7 +9949,6 @@ async function coldStart(options) {
       approvalMinutes: config.approval_expires_minutes,
       blockedEntities: config.blocked_entities,
       blockedTopics: config.blocked_topics,
-      organizationName: config.organization_name,
     });
   } else if (options.defaults || !process.stdin.isTTY) {
     if (!options.defaults && !process.stdin.isTTY) {
@@ -9961,10 +9958,6 @@ async function coldStart(options) {
     }
     policy = defaultPolicy();
   } else {
-    const organizationName = await prompt(
-      "Organization display name",
-      "Your company",
-    );
     const blockedTopics = splitCommaList(
       await prompt(
         "Additional confidential topics, comma separated",
@@ -9984,7 +9977,6 @@ async function coldStart(options) {
       approvalMinutes,
       blockedEntities,
       blockedTopics,
-      organizationName,
     });
   }
   await atomicWrite(paths.policy, renderPolicy(policy));
@@ -10241,6 +10233,9 @@ async function installCommand(options) {
       print(`  ${renderCommand([command, args])}`);
     }
   }
+  print(
+    "Updates: Codex refreshes configured Git marketplaces at startup. In Claude Code, enable auto-update once under /plugin > Marketplaces > supercharge. Start a new host session after an update.",
+  );
   if (!options.execute) {
     print("Dry run only. Add --execute to run these commands.");
     return;

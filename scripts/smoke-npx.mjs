@@ -1,11 +1,14 @@
 import { spawn } from "node:child_process";
-import { mkdtemp, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const destination = await mkdtemp(join(tmpdir(), "kindling-npx-smoke-"));
+const packageVersion = JSON.parse(
+  await readFile(resolve(root, "packages/agent-cli/package.json"), "utf8"),
+).version;
 
 async function run(command, args, cwd = root) {
   return new Promise((resolvePromise, reject) => {
@@ -55,7 +58,7 @@ try {
     "kindling-agent",
     "version",
   ]);
-  if (result.stdout.trim() !== "1.2.0") {
+  if (result.stdout.trim() !== packageVersion) {
     throw new Error(
       `unexpected npx version output: ${JSON.stringify(result.stdout)}`,
     );

@@ -115,7 +115,6 @@ async function coldStart(options) {
       approvalMinutes: config.approval_expires_minutes,
       blockedEntities: config.blocked_entities,
       blockedTopics: config.blocked_topics,
-      organizationName: config.organization_name,
     });
   } else if (options.defaults || !process.stdin.isTTY) {
     if (!options.defaults && !process.stdin.isTTY) {
@@ -125,10 +124,6 @@ async function coldStart(options) {
     }
     policy = defaultPolicy();
   } else {
-    const organizationName = await prompt(
-      "Organization display name",
-      "Your company",
-    );
     const blockedTopics = splitCommaList(
       await prompt(
         "Additional confidential topics, comma separated",
@@ -148,7 +143,6 @@ async function coldStart(options) {
       approvalMinutes,
       blockedEntities,
       blockedTopics,
-      organizationName,
     });
   }
   await atomicWrite(paths.policy, renderPolicy(policy));
@@ -405,6 +399,9 @@ async function installCommand(options) {
       print(`  ${renderCommand([command, args])}`);
     }
   }
+  print(
+    "Updates: Codex refreshes configured Git marketplaces at startup. In Claude Code, enable auto-update once under /plugin > Marketplaces > supercharge. Start a new host session after an update.",
+  );
   if (!options.execute) {
     print("Dry run only. Add --execute to run these commands.");
     return;

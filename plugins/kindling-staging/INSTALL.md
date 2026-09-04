@@ -70,6 +70,23 @@ Reconnect directly with:
 npx @kindling/agent connect --target codex --environment staging
 ```
 
+## Updates
+
+Staging ships at the same explicit semantic version as production. Enable
+Claude Code auto-update once from `/plugin` > Marketplaces > `supercharge` >
+Enable auto-update. Codex checks configured Git marketplaces at startup.
+
+Force an immediate staging update with:
+
+```bash
+codex plugin marketplace upgrade supercharge
+codex plugin add kindling-staging@supercharge
+claude plugin marketplace update supercharge
+claude plugin update kindling-staging@supercharge --scope user
+```
+
+Open a new task or session after updating.
+
 ## Local state
 
 The production-compatible policy is shared at

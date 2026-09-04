@@ -43,7 +43,30 @@ const codexMarketplace = await json(
 const claudeMarketplace = await json(
   resolve(root, ".claude-plugin/marketplace.json"),
 );
+const rootPackage = await json(resolve(root, "package.json"));
+const packageLock = await json(resolve(root, "package-lock.json"));
 const cliPackage = await json(resolve(root, "packages/agent-cli/package.json"));
+const changelog = await readFile(resolve(root, "CHANGELOG.md"), "utf8");
+const releaseVersion = cliPackage.version;
+
+assert(
+  /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(releaseVersion),
+  "CLI package version must be semantic versioning without build metadata",
+);
+assert(
+  rootPackage.version === releaseVersion,
+  "root package and CLI versions differ",
+);
+assert(
+  packageLock.version === releaseVersion &&
+    packageLock.packages?.[""]?.version === releaseVersion &&
+    packageLock.packages?.["packages/agent-cli"]?.version === releaseVersion,
+  "package-lock release versions differ",
+);
+assert(
+  changelog.includes(`## ${releaseVersion} -`),
+  "changelog does not contain the current release version",
+);
 
 for (const profile of profiles) {
   const plugin = resolve(root, `plugins/${profile.id}`);
@@ -72,7 +95,7 @@ for (const profile of profiles) {
     `${profile.id} manifest versions differ`,
   );
   assert(
-    cliPackage.version === codexManifest.version,
+    releaseVersion === codexManifest.version,
     `${profile.id} CLI and plugin versions differ`,
   );
   assert(
@@ -191,10 +214,13 @@ for (const profile of profiles) {
       `${profile.id}/${skill} implicit invocation policy mismatch`,
     );
   }
-  const publicContractText = await Promise.all([
-    ...profile.skills.map((skill) =>
+  const skillContractText = await Promise.all(
+    profile.skills.map((skill) =>
       readFile(resolve(plugin, `skills/${skill}/SKILL.md`), "utf8"),
     ),
+  );
+  const publicContractText = await Promise.all([
+    ...skillContractText,
     readFile(
       resolve(
         plugin,
@@ -206,6 +232,25 @@ for (const profile of profiles) {
   assert(
     !publicContractText.join("\n").includes("list_memory_map"),
     `${profile.id} contains a stale list_memory_map reference`,
+  );
+  const ingestionSkillText = skillContractText[1];
+  const normalizedIngestionSkillText = ingestionSkillText.replace(/\s+/g, " ");
+  assert(
+    ingestionSkillText.includes(`../../dist/${profile.guard}`),
+    `${profile.id} ingestion skill does not use the canonical bundled CLI`,
+  );
+  assert(
+    !ingestionSkillText.includes(`scripts/${profile.id}.cjs`),
+    `${profile.id} ingestion skill contains the unreliable nested CLI path`,
+  );
+  assert(
+    !ingestionSkillText.toLowerCase().includes("organization display name"),
+    `${profile.id} ingestion skill must not ask for a non-authoritative tenant label`,
+  );
+  assert(
+    normalizedIngestionSkillText.includes("OAuth") &&
+      normalizedIngestionSkillText.includes("only tenant authority"),
+    `${profile.id} ingestion skill does not document OAuth tenant authority`,
   );
   await json(resolve(plugin, "schemas/ingestion-policy.schema.json"));
   await stat(resolve(plugin, `dist/${profile.guard}`));

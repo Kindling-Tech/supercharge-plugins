@@ -14,9 +14,15 @@ parallel because that would expose duplicate skills, hooks, and MCP servers.
 ## Versioning
 
 The version in both plugin manifests and `packages/agent-cli/package.json` must
-match. Use semantic versioning. A release that changes hook semantics, policy
-schema, approval canonicalization, or state compatibility requires explicit
-migration notes and the appropriate version bump.
+match the root package and lockfile. Use semantic versioning and bump the patch
+version for every compatible bug fix so host caches detect the release. A
+release that changes hook semantics, policy schema, approval canonicalization,
+or state compatibility requires explicit migration notes and the appropriate
+minor or major version bump. Never push plugin changes without a version bump.
+
+Configured Codex Git marketplaces refresh at startup. Claude Code can do the
+same after the user enables auto-update for the third-party `supercharge`
+marketplace. A new task/session is the version activation boundary.
 
 ## Release checklist
 

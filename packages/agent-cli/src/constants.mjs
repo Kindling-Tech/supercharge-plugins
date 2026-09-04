@@ -1,4 +1,4 @@
-export const PLUGIN_VERSION = "1.2.0";
+export const PLUGIN_VERSION = "1.2.1";
 export const POLICY_SCHEMA_VERSION = 2;
 export const POLICY_RELATIVE_PATH = ".kindling/ingestion-policy.yaml";
 export const CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;
@@ -36,7 +36,7 @@ export const STATIC_EXCLUSION_CODES = new Set([
 
 export const DEFAULT_POLICY = Object.freeze({
   schema_version: POLICY_SCHEMA_VERSION,
-  organization: { display_name: "Your company" },
+  organization: { display_name: "OAuth-connected Kindling workspace" },
   sensitive: {
     blocked_topics: [],
     blocked_entities: [],

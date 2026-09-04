@@ -11,7 +11,7 @@ export async function temporaryWorkspace(prefix = "kindling-test-") {
   const root = await mkdtemp(join(tmpdir(), prefix));
   const kindlingDir = join(root, ".kindling");
   const paths = await ensurePrivateLayout(kindlingDir);
-  const policy = defaultPolicy({ organizationName: "Test Company" });
+  const policy = defaultPolicy();
   await writeFile(paths.policy, renderPolicy(policy), {
     encoding: "utf8",
     mode: 0o600,

@@ -1,7 +1,7 @@
 schema_version: 2
 
 organization:
-  display_name: Your company
+  display_name: OAuth-connected Kindling workspace
 
 sensitive:
   blocked_topics:

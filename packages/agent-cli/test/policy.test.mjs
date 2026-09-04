@@ -13,8 +13,11 @@ import {
 import { temporaryWorkspace } from "./helpers.mjs";
 
 test("default policy is valid and has a stable digest", () => {
-  const policy = defaultPolicy({ organizationName: "Acme" });
-  assert.equal(policy.organization.display_name, "Acme");
+  const policy = defaultPolicy();
+  assert.equal(
+    policy.organization.display_name,
+    "OAuth-connected Kindling workspace",
+  );
   assert.match(policyDigest(policy), /^[a-f0-9]{64}$/);
   assert.equal(
     policyDigest(policy),

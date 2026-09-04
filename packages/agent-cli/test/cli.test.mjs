@@ -13,6 +13,7 @@ import {
 import { tmpdir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import YAML from "yaml";
 
 const execFileAsync = promisify(execFile);
 const root = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
@@ -35,6 +36,36 @@ test("cold-start defaults creates and validates a private policy layout", async 
   assert.match(validated.stdout, /Policy valid/);
 });
 
+test("cold-start config preserves safety decisions without accepting a tenant label", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "kindling-cli-config-"));
+  const configPath = join(cwd, "cold-start.json");
+  await writeFile(
+    configPath,
+    JSON.stringify({
+      approval_expires_minutes: 45,
+      blocked_entities: ["Private Customer", "Secret Project"],
+      blocked_topics: ["unreleased launch"],
+      organization_name: "Untrusted local tenant label",
+    }),
+  );
+
+  await run(["cold-start", "--config-json", configPath, "--cwd", cwd], cwd);
+
+  const policy = YAML.parse(
+    await readFile(join(cwd, ".kindling/ingestion-policy.yaml"), "utf8"),
+  );
+  assert.equal(
+    policy.organization.display_name,
+    "OAuth-connected Kindling workspace",
+  );
+  assert.deepEqual(policy.sensitive.blocked_topics, ["unreleased launch"]);
+  assert.deepEqual(policy.sensitive.blocked_entities, [
+    { name: "Private Customer", category: "confidential_entity" },
+    { name: "Secret Project", category: "confidential_entity" },
+  ]);
+  assert.equal(policy.review.approval_expires_minutes, 45);
+});
+
 test("cold-start refuses accidental replacement", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "kindling-cli-"));
   await run(["cold-start", "--defaults", "--cwd", cwd], cwd);
@@ -54,6 +85,7 @@ test("install is dry-run by default and emits real host commands", async () => {
   assert.match(result.stdout, /codex plugin add kindling@supercharge/);
   assert.match(result.stdout, /claude mcp login plugin:kindling:kindling/);
   assert.match(result.stdout, /codex mcp login kindling/);
+  assert.match(result.stdout, /enable auto-update once/);
   assert.match(result.stdout, /Dry run only/);
 });
 

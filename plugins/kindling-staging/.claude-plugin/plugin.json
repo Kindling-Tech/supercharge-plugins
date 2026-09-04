@@ -1,6 +1,6 @@
 {
   "name": "kindling-staging",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Review and safely ingest durable source knowledge into Kindling Staging.",
   "author": {
     "name": "Kindling",
