@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "kindling-staging": {
+      "type": "http",
+      "url": "https://api.staging.kindling.team/mcp",
+      "oauth_resource": "https://api.staging.kindling.team/mcp",
+      "default_tools_approval_mode": "approve",
+      "enabled_tools": [
+        "search_memory",
+        "fetch_memory",
+        "add_knowledge",
+        "get_ingestion_status"
+      ],
+      "tools": {
+        "add_knowledge": {
+          "approval_mode": "prompt"
+        }
+      }
+    }
+  }
+}

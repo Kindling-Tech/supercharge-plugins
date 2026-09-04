@@ -1,4 +1,5 @@
 import { createHash, createHmac, randomBytes } from "node:crypto";
+import { getEnvironmentProfile } from "./profiles.mjs";
 
 export function canonicalize(value) {
   if (
@@ -65,6 +66,18 @@ export function normalizeToolInput(input) {
 
 export function toolInputDigest(input) {
   return sha256(normalizeToolInput(input));
+}
+
+export function targetToolInputDigest(
+  input,
+  profile = getEnvironmentProfile(),
+) {
+  return sha256({
+    target_environment: profile.environment,
+    target_mcp_resource: profile.mcpUrl,
+    target_plugin: profile.pluginId,
+    tool_input: normalizeToolInput(input),
+  });
 }
 
 export function isoNow(now = new Date()) {

@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kindling Staging Source Ingestion"
+  short_description: "Test reviewed source ingestion in staging"
+  default_prompt: "Use $kindling-staging-source-ingestion to review this source for safe ingestion into Kindling Staging."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kindling-staging"
+      description: "Search and ingest approved knowledge in the connected Kindling Staging workspace."
+      transport: "streamable_http"
+      url: "https://api.staging.kindling.team/mcp"
+policy:
+  allow_implicit_invocation: false

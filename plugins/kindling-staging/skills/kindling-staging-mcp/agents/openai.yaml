@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kindling Staging MCP"
+  short_description: "Test Kindling knowledge tools in staging"
+  default_prompt: "Use $kindling-staging-mcp to test recall or a reviewed knowledge update in Kindling Staging."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kindling-staging"
+      description: "Search, fetch, ingest, and check knowledge in the connected Kindling Staging workspace."
+      transport: "streamable_http"
+      url: "https://api.staging.kindling.team/mcp"
+policy:
+  allow_implicit_invocation: false

@@ -9,6 +9,10 @@
 
 No API token, OAuth client secret, or environment variable is required.
 
+This document installs production. The internal staging plugin uses the
+separate selector `kindling-staging@supercharge` and may be installed alongside
+production without sharing approvals or audit state.
+
 ## Rename migration
 
 If the previous plugin ID is installed, remove it first:

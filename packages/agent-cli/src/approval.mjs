@@ -2,15 +2,24 @@ import { isoNow } from "./canonical.mjs";
 import { appendLedger, readLedger } from "./paths.mjs";
 import { loadReport } from "./report.mjs";
 import { loadPolicy, policyDigest } from "./policy.mjs";
-
-const APPROVE_PATTERN =
-  /^APPROVE\s+(KIR-\d{8}-\d{6}-[a-f0-9]{4})\s+([a-f0-9]{12,64})\s+(.+)$/i;
-const REJECT_PATTERN =
-  /^REJECT\s+(KIR-\d{8}-\d{6}-[a-f0-9]{4})\s+([a-f0-9]{12,64})$/i;
+import {
+  getEnvironmentProfile,
+  reportTargetMatchesProfile,
+} from "./profiles.mjs";
 
 export function parseApprovalPrompt(prompt) {
+  const profile = getEnvironmentProfile();
+  const reportPattern = `${profile.reportPrefix}-\\d{8}-\\d{6}-[a-f0-9]{4}`;
+  const approvePattern = new RegExp(
+    `^APPROVE\\s+(${reportPattern})\\s+([a-f0-9]{12,64})\\s+(.+)$`,
+    "i",
+  );
+  const rejectPattern = new RegExp(
+    `^REJECT\\s+(${reportPattern})\\s+([a-f0-9]{12,64})$`,
+    "i",
+  );
   const value = String(prompt ?? "").trim();
-  const approve = value.match(APPROVE_PATTERN);
+  const approve = value.match(approvePattern);
   if (approve) {
     const rawSelection = approve[3].trim();
     const candidateIds =
@@ -31,7 +40,7 @@ export function parseApprovalPrompt(prompt) {
       type: "approve",
     };
   }
-  const reject = value.match(REJECT_PATTERN);
+  const reject = value.match(rejectPattern);
   if (reject) {
     return {
       digest_prefix: reject[2].toLowerCase(),
@@ -47,7 +56,10 @@ function approvalId(reportId, candidateId, toolInputDigest) {
 }
 
 function normalizeReportId(value) {
-  return `KIR-${String(value).slice(4).toLowerCase()}`;
+  const profile = getEnvironmentProfile();
+  return `${profile.reportPrefix}-${String(value)
+    .slice(profile.reportPrefix.length + 1)
+    .toLowerCase()}`;
 }
 
 export async function recordApproval(
@@ -56,6 +68,10 @@ export async function recordApproval(
   { sessionId = null, now = new Date() } = {},
 ) {
   const report = await loadReport(paths, parsed.report_id);
+  const profile = getEnvironmentProfile();
+  if (!reportTargetMatchesProfile(report, profile)) {
+    throw new Error("the report targets a different Kindling environment");
+  }
   const policy = await loadPolicy(paths.policy);
   if (policyDigest(policy) !== report.policy_digest) {
     throw new Error(
@@ -123,6 +139,9 @@ export async function recordApproval(
       report_digest: report.report_digest,
       report_id: report.report_id,
       policy_digest: report.policy_digest,
+      target_environment: profile.environment,
+      target_mcp_resource: profile.mcpUrl,
+      target_plugin: profile.pluginId,
       session_id: sessionId,
       tool_input_digest: candidate.tool_input_digest,
       type: "candidate_approved",
@@ -155,12 +174,18 @@ export async function findActiveApproval(
   toolInputDigest,
   { sessionId = null, now = new Date() } = {},
 ) {
+  const profile = getEnvironmentProfile();
   const events = await readLedger(paths.approvals);
   const { approvals, rejectedReports } = foldApprovalEvents(events);
   return (
     [...approvals.values()].find(
       (approval) =>
         approval.tool_input_digest === toolInputDigest &&
+        (approval.target_environment ?? "production") === profile.environment &&
+        (approval.target_mcp_resource ??
+          getEnvironmentProfile("production").mcpUrl) === profile.mcpUrl &&
+        (approval.target_plugin ??
+          getEnvironmentProfile("production").pluginId) === profile.pluginId &&
         !approval.consumed &&
         !rejectedReports.has(approval.report_id) &&
         new Date(approval.expires_at).getTime() > now.getTime() &&

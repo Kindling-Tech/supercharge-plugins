@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kindling-staging": {
+      "type": "http",
+      "url": "https://api.staging.kindling.team/mcp"
+    }
+  }
+}

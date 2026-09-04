@@ -1,8 +1,6 @@
-export const PLUGIN_VERSION = "1.1.0";
+export const PLUGIN_VERSION = "1.2.0";
 export const POLICY_SCHEMA_VERSION = 2;
-export const KINDLING_MCP_URL = "https://api.kindling.team/mcp";
 export const POLICY_RELATIVE_PATH = ".kindling/ingestion-policy.yaml";
-export const REPORT_ID_PATTERN = /^KIR-\d{8}-\d{6}-[a-f0-9]{4}$/;
 export const CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;
 export const APPROVAL_TTL_MIN = 5;
 export const APPROVAL_TTL_MAX = 120;

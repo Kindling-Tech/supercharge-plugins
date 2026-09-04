@@ -21,10 +21,26 @@ The plugin contains no Kindling backend code or private prompt material. See
 [`plugins/kindling/README.md`](plugins/kindling/README.md) and
 [`plugins/kindling/INSTALL.md`](plugins/kindling/INSTALL.md).
 
+## Kindling Staging
+
+`kindling-staging` is the explicit-only internal testing variant. It connects
+`https://api.staging.kindling.team/mcp`, while production continues to connect
+`https://api.kindling.team/mcp`. The two plugins have separate MCP names,
+skills, reports, approvals, and ledgers and can be installed together.
+
+See [`plugins/kindling-staging/README.md`](plugins/kindling-staging/README.md)
+and [`plugins/kindling-staging/INSTALL.md`](plugins/kindling-staging/INSTALL.md).
+
 ### Install with the CLI
 
 ```bash
 npx @kindling/agent install --target all
+```
+
+For staging:
+
+```bash
+npx @kindling/agent install --target all --environment staging
 ```
 
 The install command is a dry run unless `--execute` is supplied. Execution
@@ -43,6 +59,13 @@ claude plugin install kindling@supercharge --scope user
 ```bash
 codex plugin marketplace add Kindling-Tech/supercharge-plugins
 codex plugin add kindling@supercharge
+```
+
+Install staging alongside production with:
+
+```bash
+claude plugin install kindling-staging@supercharge --scope user
+codex plugin add kindling-staging@supercharge
 ```
 
 After installation, start a new session and review/trust the plugin hooks.

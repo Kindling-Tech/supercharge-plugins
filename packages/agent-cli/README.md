@@ -5,6 +5,10 @@ customer-maintained ingestion policy, builds digest-bound review reports,
 records explicit approvals, audits sent receipts, and prints or executes the
 Codex and Claude Code plugin installation and Kindling sign-in flow.
 
+Production is the default environment. Pass `--environment staging` to
+`install`, `connect`, `doctor`, or `uninstall` to target the internal
+`kindling-staging` plugin and `https://api.staging.kindling.team/mcp`.
+
 The plugin bundles no source platform. It can review sources the user already
 connected to their host after asking for permission and scope.
 
