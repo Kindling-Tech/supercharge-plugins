@@ -9,10 +9,14 @@ import { sourceContentDigest } from "../src/sources.mjs";
 
 const root = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const cli = join(root, "plugins/kindling/dist/kindling-guard.cjs");
+const stagingCli = join(
+  root,
+  "plugins/kindling-staging/dist/kindling-staging-guard.cjs",
+);
 
-async function run(args, { cwd, stdin = "" }) {
+async function run(args, { cwd, executable = cli, stdin = "" }) {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn(process.execPath, [cli, ...args], {
+    const child = spawn(process.execPath, [executable, ...args], {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -134,5 +138,83 @@ test("shipped bundle enforces report approval and records a redacted receipt end
   assert.equal(
     JSON.parse(consumed.stdout).hookSpecificOutput.permissionDecision,
     "deny",
+  );
+});
+
+test("staging bundle isolates reports, approvals, tools, and build environment", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "kindling-staging-e2e-"));
+  const staging = { cwd, executable: stagingCli };
+  await run(["cold-start", "--defaults", "--cwd", cwd], staging);
+
+  const reportInput = {
+    source: { provider: "manual", items: [] },
+    candidates: [
+      {
+        content: "Staging validates a durable implementation expectation.",
+        id: "KI-001",
+        reason: "Safe staging test fixture.",
+        removed: [],
+        title: "Staging implementation expectation",
+      },
+    ],
+    withheld: [],
+  };
+  const inputPath = join(cwd, ".kindling/state/staging/report-input.json");
+  await writeFile(inputPath, JSON.stringify(reportInput), "utf8");
+  await run(["report", "create", "--cwd", cwd, "--input", inputPath], staging);
+
+  const reportFile = (
+    await readdir(join(cwd, ".kindling/reports/staging"))
+  ).find((name) => name.endsWith(".json"));
+  const report = JSON.parse(
+    await readFile(join(cwd, ".kindling/reports/staging", reportFile), "utf8"),
+  );
+  assert.match(report.report_id, /^KISR-/);
+  assert.equal(report.target_environment, "staging");
+  assert.equal(
+    report.target_mcp_resource,
+    "https://api.staging.kindling.team/mcp",
+  );
+  assert.equal(report.target_plugin, "kindling-staging");
+
+  const payload = {
+    cwd,
+    session_id: "staging-session",
+    tool_input: report.candidates[0].tool_input,
+    tool_name: "mcp__kindling-staging__add_knowledge",
+  };
+  const productionHook = await run(["before-write"], {
+    cwd,
+    stdin: JSON.stringify(payload),
+  });
+  assert.equal(productionHook.stdout, "");
+
+  const denied = await run(["before-write"], {
+    ...staging,
+    stdin: JSON.stringify(payload),
+  });
+  assert.equal(
+    JSON.parse(denied.stdout).hookSpecificOutput.permissionDecision,
+    "deny",
+  );
+
+  const approvalPrompt = `APPROVE ${report.report_id} ${report.report_digest.slice(0, 12)} KI-001`;
+  await run(["prompt"], {
+    ...staging,
+    stdin: JSON.stringify({
+      cwd,
+      prompt: approvalPrompt,
+      session_id: "staging-session",
+    }),
+  });
+  const allowed = await run(["before-write"], {
+    ...staging,
+    stdin: JSON.stringify(payload),
+  });
+  assert.equal(allowed.stdout, "");
+
+  await assert.rejects(
+    () => run(["doctor", "--cwd", cwd, "--environment", "production"], staging),
+    /locked to staging/,
   );
 });

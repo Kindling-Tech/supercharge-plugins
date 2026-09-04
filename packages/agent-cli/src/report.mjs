@@ -5,15 +5,15 @@ import {
   MAX_CANDIDATES,
   MAX_CANDIDATE_BYTES,
   PLUGIN_VERSION,
-  REPORT_ID_PATTERN,
 } from "./constants.mjs";
 import {
   canonicalize,
   isoNow,
   normalizeToolInput,
   sha256,
-  toolInputDigest,
+  targetToolInputDigest,
 } from "./canonical.mjs";
+import { getEnvironmentProfile, isReportIdForProfile } from "./profiles.mjs";
 import { loadPolicy, policyDigest, scanCandidate } from "./policy.mjs";
 import {
   atomicWrite,
@@ -70,12 +70,13 @@ function validateInput(input) {
 }
 
 function buildReportId(now) {
+  const profile = getEnvironmentProfile();
   const stamp = now
     .toISOString()
     .replace(/[-:]/g, "")
     .replace("T", "-")
     .slice(0, 15);
-  return `KIR-${stamp}-${randomBytes(2).toString("hex")}`;
+  return `${profile.reportPrefix}-${stamp}-${randomBytes(2).toString("hex")}`;
 }
 
 function safeWithheld(entries) {
@@ -217,7 +218,7 @@ function normalizeCandidate(raw, index, provider, policy) {
     reason,
     removed: [...new Set(removed)].sort(),
     tool_input: toolInput,
-    tool_input_digest: toolInputDigest(toolInput),
+    tool_input_digest: targetToolInputDigest(toolInput),
   };
 }
 
@@ -228,10 +229,12 @@ export async function createReport({
   reportId = null,
 }) {
   const paths = await ensurePrivateLayout(kindlingDir);
+  const profile = getEnvironmentProfile();
   const policy = await loadPolicy(paths.policy);
   const validated = validateInput(input);
   const id = reportId ?? buildReportId(now);
-  if (!REPORT_ID_PATTERN.test(id)) throw new Error("report ID is invalid");
+  if (!isReportIdForProfile(id, profile))
+    throw new Error("report ID is invalid for the active Kindling environment");
 
   const sourceRefs = await normalizeSources(
     paths,
@@ -272,6 +275,9 @@ export async function createReport({
     policy_schema_version: policy.schema_version,
     report_id: id,
     source_refs: sourceRefs,
+    target_environment: profile.environment,
+    target_mcp_resource: profile.mcpUrl,
+    target_plugin: profile.pluginId,
     withheld: mergeWithheld([
       ...safeWithheld(validated.withheld),
       ...automaticWithheld,
@@ -300,8 +306,8 @@ export async function createReport({
 export async function loadReport(pathsOrDir, reportId) {
   const paths =
     typeof pathsOrDir === "string" ? kindlingPaths(pathsOrDir) : pathsOrDir;
-  if (!REPORT_ID_PATTERN.test(reportId))
-    throw new Error("report ID is invalid");
+  if (!isReportIdForProfile(reportId))
+    throw new Error("report ID is invalid for the active Kindling environment");
   const report = JSON.parse(
     await readUtf8(join(paths.reports, `${reportId}.json`)),
   );
@@ -314,12 +320,14 @@ export async function loadReport(pathsOrDir, reportId) {
 }
 
 export function renderReportMarkdown(report) {
+  const profile = getEnvironmentProfile();
   const lines = [
-    "# Kindling ingestion review",
+    `# ${profile.displayName} ingestion review`,
     "",
     `- Report: \`${report.report_id}\``,
     `- Digest: \`${report.report_digest.slice(0, 12)}\``,
     `- Policy digest: \`${report.policy_digest.slice(0, 12)}\``,
+    `- Target: \`${report.target_environment}\``,
     `- Created: ${report.created_at}`,
     `- Approval expires: ${report.expires_at}`,
     `- Candidates: ${report.candidates.length}`,

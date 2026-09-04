@@ -1,0 +1,74 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/dist/kindling-staging-guard.cjs",
+              "connect",
+              "--target",
+              "claude-code",
+              "--automatic"
+            ],
+            "async": true,
+            "statusMessage": "Connecting Kindling Staging"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-staging-guard.cjs\" prompt",
+            "timeout": 10,
+            "statusMessage": "Checking Kindling Staging approval"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^mcp__.*kindling[-_]staging.*__add_knowledge$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-staging-guard.cjs\" before-write",
+            "timeout": 10,
+            "statusMessage": "Verifying Kindling Staging approval"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^mcp__.*kindling[-_]staging.*__add_knowledge$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-staging-guard.cjs\" after-write",
+            "timeout": 10,
+            "statusMessage": "Recording Kindling Staging receipt"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "^mcp__.*kindling[-_]staging.*__add_knowledge$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kindling-staging-guard.cjs\" write-failed",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -8,6 +8,12 @@
       "source": "./plugins/kindling",
       "description": "Review user-approved sources, filter sensitive information, and ingest only approved knowledge into Kindling.",
       "category": "integrations"
+    },
+    {
+      "name": "kindling-staging",
+      "source": "./plugins/kindling-staging",
+      "description": "Internal testing plugin for reviewed knowledge ingestion into Kindling Staging.",
+      "category": "integrations"
     }
   ]
 }

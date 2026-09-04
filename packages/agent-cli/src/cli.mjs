@@ -4,14 +4,14 @@ import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { resolve } from "node:path";
 import YAML from "yaml";
-import { KINDLING_MCP_URL, PLUGIN_VERSION } from "./constants.mjs";
+import { PLUGIN_VERSION } from "./constants.mjs";
 import {
-  CLAUDE_KINDLING_SERVER,
-  CODEX_KINDLING_SERVER,
   connectionCommands,
+  connectionServerName,
   parseClaudeConnectionStatus,
   parseCodexConnectionStatus,
 } from "./connections.mjs";
+import { configureEnvironment, getEnvironmentProfile } from "./profiles.mjs";
 import { parseApprovalPrompt, recordApproval } from "./approval.mjs";
 import { runHook } from "./hooks.mjs";
 import {
@@ -96,6 +96,7 @@ async function prompt(question, fallback = "") {
 }
 
 async function coldStart(options) {
+  const profile = getEnvironmentProfile();
   const cwd = resolve(String(options.cwd ?? process.cwd()));
   const kindlingDir = await findKindlingDir(cwd, { create: true });
   const paths = await ensurePrivateLayout(kindlingDir);
@@ -154,7 +155,7 @@ async function coldStart(options) {
   print(`Created ${paths.policy}`);
   print(`Policy digest: ${policyDigest(policy)}`);
   print(
-    "Next: connect the Kindling MCP, then run the source-ingestion skill in run mode.",
+    `Next: connect the ${profile.displayName} MCP, then run the ${profile.sourceSkill} skill in run mode.`,
   );
 }
 
@@ -258,6 +259,7 @@ async function sourceDigestCommand() {
 }
 
 function installationCommands(target) {
+  const profile = getEnvironmentProfile();
   const commands = [];
   if (target === "claude-code" || target === "all") {
     commands.push([
@@ -266,7 +268,7 @@ function installationCommands(target) {
     ]);
     commands.push([
       "claude",
-      ["plugin", "install", "kindling@supercharge", "--scope", "user"],
+      ["plugin", "install", profile.pluginSelector, "--scope", "user"],
     ]);
   }
   if (target === "codex" || target === "all") {
@@ -274,7 +276,7 @@ function installationCommands(target) {
       "codex",
       ["plugin", "marketplace", "add", "Kindling-Tech/supercharge-plugins"],
     ]);
-    commands.push(["codex", ["plugin", "add", "kindling@supercharge"]]);
+    commands.push(["codex", ["plugin", "add", profile.pluginSelector]]);
   }
   if (!commands.length)
     throw new Error("--target must be claude-code, codex, or all");
@@ -328,17 +330,20 @@ async function runCommand(
   });
 }
 
-async function connectionStatus(host) {
+async function connectionStatus(host, profile = getEnvironmentProfile()) {
   if (host === "claude-code") {
     const result = await runCommand("claude", ["mcp", "list"], {
       silent: true,
     });
-    return parseClaudeConnectionStatus(`${result.stdout}\n${result.stderr}`);
+    return parseClaudeConnectionStatus(
+      `${result.stdout}\n${result.stderr}`,
+      profile,
+    );
   }
   const result = await runCommand("codex", ["mcp", "list", "--json"], {
     silent: true,
   });
-  return parseCodexConnectionStatus(result.stdout);
+  return parseCodexConnectionStatus(result.stdout, profile);
 }
 
 function automaticConnectionEnabled() {
@@ -349,29 +354,30 @@ function automaticConnectionEnabled() {
 }
 
 async function connectCommand(options) {
+  const profile = getEnvironmentProfile();
   const target = String(options.target ?? "all");
   const automatic = Boolean(options.automatic);
   if (automatic && target !== "claude-code") return;
   if (automatic && !automaticConnectionEnabled()) return;
 
-  for (const [host, command, args] of connectionCommands(target)) {
+  for (const [host, command, args] of connectionCommands(target, profile)) {
     let status;
     try {
-      status = await connectionStatus(host);
+      status = await connectionStatus(host, profile);
     } catch (error) {
       if (automatic) return;
       throw error;
     }
     if (status === "connected" && !options.force) {
-      if (!automatic) print(`Kindling is already connected in ${host}.`);
+      if (!automatic)
+        print(`${profile.displayName} is already connected in ${host}.`);
       continue;
     }
     if (automatic && status !== "not_logged_in") return;
     if (status === "missing") {
-      const expected =
-        host === "claude-code" ? CLAUDE_KINDLING_SERVER : CODEX_KINDLING_SERVER;
+      const expected = connectionServerName(host, profile);
       throw new Error(
-        `Kindling MCP server ${expected} is not installed in ${host}`,
+        `${profile.displayName} MCP server ${expected} is not installed in ${host}`,
       );
     }
     try {
@@ -383,18 +389,19 @@ async function connectCommand(options) {
       if (automatic) return;
       throw error;
     }
-    if (!automatic) print(`Kindling connected in ${host}.`);
+    if (!automatic) print(`${profile.displayName} connected in ${host}.`);
   }
 }
 
 async function installCommand(options) {
+  const profile = getEnvironmentProfile();
   const target = String(options.target ?? "all");
   const commands = installationCommands(target);
   print("Planned commands:");
   for (const command of commands) print(`  ${renderCommand(command)}`);
   if (!options["no-connect"]) {
-    print("Kindling sign-in after installation:");
-    for (const [, command, args] of connectionCommands(target)) {
+    print(`${profile.displayName} sign-in after installation:`);
+    for (const [, command, args] of connectionCommands(target, profile)) {
       print(`  ${renderCommand([command, args])}`);
     }
   }
@@ -425,19 +432,20 @@ async function installCommand(options) {
   }
   print(
     options["no-connect"]
-      ? "Plugin installed. Kindling sign-in was skipped by request."
-      : "Plugin installed and Kindling connection is ready. Open a new host session and trust the plugin hooks when prompted.",
+      ? `Plugin installed. ${profile.displayName} sign-in was skipped by request.`
+      : `Plugin installed and ${profile.displayName} connection is ready. Open a new host session and trust the plugin hooks when prompted.`,
   );
 }
 
 async function uninstallCommand(options) {
+  const profile = getEnvironmentProfile();
   const target = String(options.target ?? "all");
   const commands = [];
   if (target === "claude-code" || target === "all") {
-    commands.push(["claude", ["plugin", "uninstall", "kindling@supercharge"]]);
+    commands.push(["claude", ["plugin", "uninstall", profile.pluginSelector]]);
   }
   if (target === "codex" || target === "all") {
-    commands.push(["codex", ["plugin", "remove", "kindling@supercharge"]]);
+    commands.push(["codex", ["plugin", "remove", profile.pluginSelector]]);
   }
   if (!commands.length)
     throw new Error("--target must be claude-code, codex, or all");
@@ -458,13 +466,15 @@ async function uninstallCommand(options) {
 }
 
 async function doctorCommand(options) {
+  const profile = getEnvironmentProfile();
   const paths = await resolveExistingPaths(options);
   const policy = await loadPolicy(paths.policy);
   print(`Node: ${process.version}`);
   print(`Plugin runtime: ${PLUGIN_VERSION}`);
   print(`Policy: ${paths.policy}`);
   print(`Policy digest: ${policyDigest(policy)}`);
-  print(`Kindling MCP: ${KINDLING_MCP_URL}`);
+  print(`Environment: ${profile.environment}`);
+  print(`${profile.displayName} MCP: ${profile.mcpUrl}`);
   print(
     "Claude Code: Kindling sign-in opens automatically after consent; use /plugins, /hooks, and /mcp for diagnostics.",
   );
@@ -477,8 +487,8 @@ function help() {
   print(`Kindling agent CLI ${PLUGIN_VERSION}
 
 Usage:
-  kindling-agent install --target claude-code|codex|all [--execute --yes --no-connect]
-  kindling-agent connect --target claude-code|codex|all [--force]
+  kindling-agent install --target claude-code|codex|all [--environment production|staging] [--execute --yes --no-connect]
+  kindling-agent connect --target claude-code|codex|all [--environment production|staging] [--force]
   kindling-agent cold-start [--defaults | --config-json FILE] [--force]
   kindling-agent policy validate [--path FILE]
   kindling-agent report create --input FILE
@@ -487,7 +497,7 @@ Usage:
   kindling-agent source check --external-id ID [--content-digest SHA256]
   kindling-agent audit
   kindling-agent doctor
-  kindling-agent uninstall --target claude-code|codex|all [--execute --yes]
+  kindling-agent uninstall --target claude-code|codex|all [--environment production|staging] [--execute --yes]
 
 Hook entrypoints (used by the plugin):
   kindling-agent prompt|before-write|after-write|write-failed
@@ -512,6 +522,7 @@ async function main() {
       ? rest
       : [subcommand, ...rest].filter((value) => value !== undefined),
   );
+  configureEnvironment(options.environment);
   if (!command || command === "help" || options.help) return help();
   if (command === "version" || options.version) return print(PLUGIN_VERSION);
   if (command === "cold-start") return coldStart(options);

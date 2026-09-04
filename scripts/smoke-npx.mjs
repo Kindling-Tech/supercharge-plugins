@@ -49,12 +49,13 @@ try {
   if (!archive) throw new Error("npm pack did not create an archive");
   const result = await run("npx", [
     "--yes",
+    "--offline",
     "--package",
     join(destination, archive),
     "kindling-agent",
     "version",
   ]);
-  if (result.stdout.trim() !== "1.1.0") {
+  if (result.stdout.trim() !== "1.2.0") {
     throw new Error(
       `unexpected npx version output: ${JSON.stringify(result.stdout)}`,
     );

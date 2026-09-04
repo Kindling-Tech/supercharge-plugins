@@ -1,0 +1,29 @@
+{
+  "name": "kindling-staging",
+  "version": "1.2.0",
+  "description": "Review and safely ingest durable source knowledge into Kindling Staging.",
+  "author": {
+    "name": "Kindling",
+    "url": "https://kindling.team"
+  },
+  "homepage": "https://app.staging.kindling.team",
+  "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
+  "license": "UNLICENSED",
+  "keywords": ["kindling", "staging", "mcp", "knowledge", "ingestion"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Kindling Staging",
+    "shortDescription": "Test reviewed ingestion against staging",
+    "longDescription": "Internal testing plugin for reviewing knowledge, filtering private information, and ingesting only approved content through Kindling Staging.",
+    "developerName": "Kindling",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://app.staging.kindling.team",
+    "defaultPrompt": [
+      "Review this source for safe staging ingestion.",
+      "Set up my Kindling staging ingestion policy.",
+      "Show what has been sent to Kindling Staging."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

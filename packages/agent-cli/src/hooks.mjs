@@ -4,7 +4,7 @@ import {
   findKindlingDir,
   kindlingPaths,
 } from "./paths.mjs";
-import { isoNow, toolInputDigest } from "./canonical.mjs";
+import { isoNow, targetToolInputDigest } from "./canonical.mjs";
 import {
   consumeApproval,
   findActiveApproval,
@@ -14,6 +14,7 @@ import {
 import { loadReport } from "./report.mjs";
 import { recordSourcesSent } from "./sources.mjs";
 import { loadPolicy, policyDigest } from "./policy.mjs";
+import { getEnvironmentProfile } from "./profiles.mjs";
 
 const EXPLICIT_INGESTION_INTENT =
   /\b(?:ingest|transfer (?:this|that|these|the|my|knowledge)|save (?:this|that|these)|remember (?:this|that|these)|add (?:this|that|these) to (?:kindling|supercharge|memory))\b/i;
@@ -39,13 +40,16 @@ function denyWrite(reason) {
   };
 }
 
-function isKindlingAddKnowledge(toolName) {
+export function isTargetAddKnowledge(toolName) {
   const value = String(toolName ?? "").toLowerCase();
-  return (
-    value.startsWith("mcp__") &&
-    value.includes("kindling") &&
-    value.endsWith("__add_knowledge")
-  );
+  if (!value.startsWith("mcp__") || !value.endsWith("__add_knowledge")) {
+    return false;
+  }
+  const server = value.slice("mcp__".length, -"__add_knowledge".length);
+  const staging = /kindling[-_]staging/.test(server);
+  return getEnvironmentProfile().environment === "staging"
+    ? staging
+    : server.includes("kindling") && !staging;
 }
 
 async function resolvePaths(payload, { create = false } = {}) {
@@ -57,6 +61,7 @@ async function resolvePaths(payload, { create = false } = {}) {
 }
 
 export async function handleUserPrompt(payload, now = new Date()) {
+  const profile = getEnvironmentProfile();
   const prompt = String(
     payload.prompt ?? payload.user_prompt ?? payload.userPrompt ?? "",
   ).trim();
@@ -72,11 +77,11 @@ export async function handleUserPrompt(payload, now = new Date()) {
       });
       if (result.rejected) {
         return promptContext(
-          `Kindling ingestion report ${result.report.report_id} was rejected. Do not call add_knowledge for any candidate from it.`,
+          `${profile.displayName} ingestion report ${result.report.report_id} was rejected. Do not call add_knowledge for any candidate from it.`,
         );
       }
       return promptContext(
-        `Explicit Kindling ingestion approval was recorded for ${result.selected
+        `Explicit ${profile.displayName} ingestion approval was recorded for ${result.selected
           .map((candidate) => candidate.id)
           .join(
             ", ",
@@ -84,13 +89,14 @@ export async function handleUserPrompt(payload, now = new Date()) {
       );
     } catch (error) {
       return promptContext(
-        `Kindling ingestion approval was not recorded: ${error.message}`,
+        `${profile.displayName} ingestion approval was not recorded: ${error.message}`,
       );
     }
   }
+  if (!profile.allowImplicitIngestion) return null;
   if (EXPLICIT_INGESTION_INTENT.test(prompt)) {
     return promptContext(
-      "The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed kindling-source-ingestion skill, generate a digest-bound review report, and wait for the report's exact approval command before calling Kindling add_knowledge.",
+      `The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed ${profile.sourceSkill} skill, generate a digest-bound review report, and wait for the report's exact approval command before calling ${profile.displayName} add_knowledge.`,
     );
   }
   if (SOURCE_CONTEXT_INTENT.test(prompt)) {
@@ -102,34 +108,35 @@ export async function handleUserPrompt(payload, now = new Date()) {
 }
 
 export async function handleBeforeWrite(payload, now = new Date()) {
-  if (!isKindlingAddKnowledge(payload.tool_name)) return null;
+  const profile = getEnvironmentProfile();
+  if (!isTargetAddKnowledge(payload.tool_name)) return null;
   try {
     const paths = await resolvePaths(payload);
     if (!paths) {
       return denyWrite(
-        "Kindling ingestion blocked: no .kindling/ingestion-policy.yaml was found. Run the cold-start workflow first.",
+        `${profile.displayName} ingestion blocked: no .kindling/ingestion-policy.yaml was found. Run the cold-start workflow first.`,
       );
     }
-    const digest = toolInputDigest(payload.tool_input);
+    const digest = targetToolInputDigest(payload.tool_input);
     const approval = await findActiveApproval(paths, digest, {
       now,
       sessionId: payload.session_id ?? null,
     });
     if (!approval) {
       return denyWrite(
-        "Kindling ingestion blocked: the exact add_knowledge arguments do not have an active user-approved review receipt.",
+        `${profile.displayName} ingestion blocked: the exact add_knowledge arguments do not have an active user-approved review receipt.`,
       );
     }
     const currentPolicy = await loadPolicy(paths.policy);
     if (policyDigest(currentPolicy) !== approval.policy_digest) {
       return denyWrite(
-        "Kindling ingestion blocked: the customer policy changed after approval. Create and approve a new report.",
+        `${profile.displayName} ingestion blocked: the customer policy changed after approval. Create and approve a new report.`,
       );
     }
     return null;
   } catch (error) {
     return denyWrite(
-      `Kindling ingestion blocked because local approval state could not be verified: ${error.message}`,
+      `${profile.displayName} ingestion blocked because local approval state could not be verified: ${error.message}`,
     );
   }
 }
@@ -161,10 +168,11 @@ function deepFind(value, key) {
 }
 
 export async function handleAfterWrite(payload, now = new Date()) {
-  if (!isKindlingAddKnowledge(payload.tool_name)) return null;
+  const profile = getEnvironmentProfile();
+  if (!isTargetAddKnowledge(payload.tool_name)) return null;
   const paths = await resolvePaths(payload);
   if (!paths) return null;
-  const digest = toolInputDigest(payload.tool_input);
+  const digest = targetToolInputDigest(payload.tool_input);
   const approval = await findActiveApproval(paths, digest, {
     now,
     sessionId: payload.session_id ?? null,
@@ -183,6 +191,9 @@ export async function handleAfterWrite(payload, now = new Date()) {
     source_id: sourceId === null ? null : String(sourceId).slice(0, 200),
     status: status === null ? null : String(status).slice(0, 100),
     tool_input_digest: digest,
+    target_environment: profile.environment,
+    target_mcp_resource: profile.mcpUrl,
+    target_plugin: profile.pluginId,
     type: "knowledge_sent",
   });
   const report = await loadReport(paths, approval.report_id);
@@ -197,12 +208,13 @@ export async function handleAfterWrite(payload, now = new Date()) {
 }
 
 export async function handleWriteFailure(payload, now = new Date()) {
-  if (!isKindlingAddKnowledge(payload.tool_name)) return null;
+  const profile = getEnvironmentProfile();
+  if (!isTargetAddKnowledge(payload.tool_name)) return null;
   const paths = await resolvePaths(payload);
   if (!paths) return null;
   let digest = null;
   try {
-    digest = toolInputDigest(payload.tool_input);
+    digest = targetToolInputDigest(payload.tool_input);
   } catch {
     // A malformed tool input is logged without copying it.
   }
@@ -213,6 +225,9 @@ export async function handleWriteFailure(payload, now = new Date()) {
       : typeof payload.tool_response,
     tool_input_digest: digest,
     tool_name: String(payload.tool_name).slice(0, 200),
+    target_environment: profile.environment,
+    target_mcp_resource: profile.mcpUrl,
+    target_plugin: profile.pluginId,
     type: "knowledge_send_failed",
   });
   return null;

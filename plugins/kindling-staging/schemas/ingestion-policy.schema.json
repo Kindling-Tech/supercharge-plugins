@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kindling.team/schemas/ingestion-policy-v2.json",
+  "title": "Kindling ingestion policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "organization",
+    "sensitive",
+    "public_information",
+    "review"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "organization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["display_name"],
+      "properties": {
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "sensitive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocked_topics", "blocked_entities", "remove_data_types"],
+      "properties": {
+        "blocked_topics": {
+          "type": "array",
+          "maxItems": 200,
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        },
+        "blocked_entities": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "category"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1, "maxLength": 500 },
+              "category": { "type": "string", "minLength": 1, "maxLength": 500 }
+            }
+          }
+        },
+        "remove_data_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "personal_email",
+              "phone_number",
+              "physical_address",
+              "employee_name",
+              "customer_name",
+              "verbatim_quote"
+            ]
+          }
+        }
+      }
+    },
+    "public_information": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved_domains", "approved_claims"],
+      "properties": {
+        "approved_domains": {
+          "type": "array",
+          "maxItems": 200,
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        },
+        "approved_claims": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "text"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1, "maxLength": 500 },
+              "text": { "type": "string", "minLength": 1, "maxLength": 500 },
+              "approved_by": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "approved_on": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval_expires_minutes",
+        "allow_approve_all",
+        "persist_safe_reports"
+      ],
+      "properties": {
+        "approval_expires_minutes": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 120
+        },
+        "allow_approve_all": { "type": "boolean" },
+        "persist_safe_reports": { "type": "boolean" }
+      }
+    }
+  }
+}

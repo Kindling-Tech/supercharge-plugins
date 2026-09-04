@@ -12,23 +12,31 @@ import {
 import { constants as fsConstants } from "node:fs";
 import { basename, dirname, join, parse, resolve } from "node:path";
 import { randomHex } from "./canonical.mjs";
+import { getEnvironmentProfile } from "./profiles.mjs";
 
 const POLICY_NAME = "ingestion-policy.yaml";
 const LOCK_STALE_MS = 30_000;
 
-export function kindlingPaths(kindlingDir) {
+export function kindlingPaths(kindlingDir, profile = getEnvironmentProfile()) {
   const root = resolve(kindlingDir);
+  const namespace = profile.stateNamespace;
+  const reports = namespace
+    ? join(root, "reports", namespace)
+    : join(root, "reports");
+  const state = namespace
+    ? join(root, "state", namespace)
+    : join(root, "state");
   return {
     root,
     policy: join(root, POLICY_NAME),
-    reports: join(root, "reports"),
-    state: join(root, "state"),
-    approvals: join(root, "state", "approvals.jsonl"),
-    sent: join(root, "state", "sent.jsonl"),
-    failures: join(root, "state", "failures.jsonl"),
-    sources: join(root, "state", "sources.jsonl"),
-    secret: join(root, "state", ".local-key"),
-    lock: join(root, "state", ".ledger.lock"),
+    reports,
+    state,
+    approvals: join(state, "approvals.jsonl"),
+    sent: join(state, "sent.jsonl"),
+    failures: join(state, "failures.jsonl"),
+    sources: join(state, "sources.jsonl"),
+    secret: join(state, ".local-key"),
+    lock: join(state, ".ledger.lock"),
   };
 }
 

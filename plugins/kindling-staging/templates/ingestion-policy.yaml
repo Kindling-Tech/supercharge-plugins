@@ -1,0 +1,28 @@
+schema_version: 2
+
+organization:
+  display_name: Your company
+
+sensitive:
+  blocked_topics:
+    - unreleased roadmap
+    - pricing exceptions
+    - security incidents
+    - investor discussions
+  blocked_entities: []
+  remove_data_types:
+    - personal_email
+    - phone_number
+    - physical_address
+    - employee_name
+    - customer_name
+    - verbatim_quote
+
+public_information:
+  approved_domains: []
+  approved_claims: []
+
+review:
+  approval_expires_minutes: 30
+  allow_approve_all: true
+  persist_safe_reports: true

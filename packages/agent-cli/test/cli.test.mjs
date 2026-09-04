@@ -57,6 +57,24 @@ test("install is dry-run by default and emits real host commands", async () => {
   assert.match(result.stdout, /Dry run only/);
 });
 
+test("staging install emits isolated plugin and MCP commands", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "kindling-cli-"));
+  const result = await run(
+    ["install", "--target", "all", "--environment", "staging"],
+    cwd,
+  );
+  assert.match(
+    result.stdout,
+    /claude plugin install kindling-staging@supercharge --scope user/,
+  );
+  assert.match(
+    result.stdout,
+    /claude mcp login plugin:kindling-staging:kindling-staging/,
+  );
+  assert.match(result.stdout, /codex plugin add kindling-staging@supercharge/);
+  assert.match(result.stdout, /codex mcp login kindling-staging/);
+});
+
 test(
   "automatic Claude connection opens host-native login only when needed",
   { skip: process.platform === "win32" },
@@ -165,6 +183,22 @@ test("uninstall uses host-valid marketplace-qualified selectors", async () => {
   assert.match(result.stdout, /claude plugin uninstall kindling@supercharge/);
   assert.match(result.stdout, /codex plugin remove kindling@supercharge/);
   assert.match(result.stdout, /Dry run only/);
+});
+
+test("staging uninstall uses its own marketplace-qualified selectors", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "kindling-cli-"));
+  const result = await run(
+    ["uninstall", "--target", "all", "--environment", "staging"],
+    cwd,
+  );
+  assert.match(
+    result.stdout,
+    /claude plugin uninstall kindling-staging@supercharge/,
+  );
+  assert.match(
+    result.stdout,
+    /codex plugin remove kindling-staging@supercharge/,
+  );
 });
 
 test("source check keeps source content out of stdout", async () => {

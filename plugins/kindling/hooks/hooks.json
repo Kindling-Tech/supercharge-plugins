@@ -34,7 +34,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "^mcp__.*kindling.*__add_knowledge$",
+        "matcher": "^mcp__(?!.*kindling[-_]staging).*kindling.*__add_knowledge$",
         "hooks": [
           {
             "type": "command",
@@ -47,7 +47,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "^mcp__.*kindling.*__add_knowledge$",
+        "matcher": "^mcp__(?!.*kindling[-_]staging).*kindling.*__add_knowledge$",
         "hooks": [
           {
             "type": "command",
@@ -60,7 +60,7 @@
     ],
     "PostToolUseFailure": [
       {
-        "matcher": "^mcp__.*kindling.*__add_knowledge$",
+        "matcher": "^mcp__(?!.*kindling[-_]staging).*kindling.*__add_knowledge$",
         "hooks": [
           {
             "type": "command",
