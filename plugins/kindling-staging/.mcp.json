@@ -9,7 +9,9 @@
         "search_memory",
         "fetch_memory",
         "add_knowledge",
-        "get_ingestion_status"
+        "get_ingestion_status",
+        "search_sources",
+        "read_source"
       ],
       "tools": {
         "add_knowledge": {
