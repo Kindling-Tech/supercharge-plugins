@@ -8120,7 +8120,7 @@ var import_node_path3 = require("node:path");
 var import_yaml2 = __toESM(require_dist(), 1);
 
 // src/constants.mjs
-var PLUGIN_VERSION = "1.3.0";
+var PLUGIN_VERSION = "1.3.1";
 var POLICY_SCHEMA_VERSION = 2;
 var CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;
 var APPROVAL_TTL_MIN = 5;
@@ -8339,7 +8339,18 @@ function normalizeToolInput(input2) {
   if (typeof input2.content !== "string" || !input2.content.trim()) {
     throw new TypeError("Kindling tool input requires non-empty content");
   }
-  return {
+  const allowed = /* @__PURE__ */ new Set([
+    "connector_label",
+    "content",
+    "origin_uri",
+    "title",
+    "founder_id",
+  ]);
+  for (const key of Object.keys(input2)) {
+    if (!allowed.has(key))
+      throw new TypeError(`Unknown Kindling tool argument: ${key}`);
+  }
+  const normalized = {
     connector_label:
       input2.connector_label === void 0 || input2.connector_label === null
         ? null
@@ -8354,6 +8365,20 @@ function normalizeToolInput(input2) {
         ? null
         : String(input2.title),
   };
+  if (input2.founder_id !== void 0 && input2.founder_id !== null) {
+    if (
+      typeof input2.founder_id !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        input2.founder_id,
+      )
+    ) {
+      throw new TypeError(
+        "founder_id must be an exact Profile UUID from list_profiles",
+      );
+    }
+    normalized.founder_id = input2.founder_id;
+  }
+  return normalized;
 }
 function targetToolInputDigest(input2, profile = getEnvironmentProfile()) {
   return sha256({
@@ -9234,6 +9259,8 @@ function normalizeCandidate(raw, index, provider, policy) {
       "reason",
       "removed",
       "origin_uri",
+      "founder_id",
+      "profile_name",
     ]),
     `candidates[${index}]`,
   );
@@ -9279,7 +9306,21 @@ function normalizeCandidate(raw, index, provider, policy) {
     content,
     origin_uri: null,
     title,
+    founder_id: raw.founder_id,
   });
+  const profileName = validateShortText(
+    raw.profile_name,
+    `candidates[${index}].profile_name`,
+    {
+      required: false,
+      max: 200,
+    },
+  );
+  if (profileName && !toolInput.founder_id) {
+    throw new Error(
+      `${id} profile_name requires founder_id from list_profiles`,
+    );
+  }
   const findings = scanCandidate(
     {
       content: `${content}
@@ -9295,6 +9336,7 @@ ${reason ?? ""}`,
     removed: [...new Set(removed)].sort(),
     tool_input: toolInput,
     tool_input_digest: targetToolInputDigest(toolInput),
+    ...(profileName ? { profile_name: profileName } : {}),
   };
 }
 async function createReport({
@@ -9413,6 +9455,8 @@ function renderReportMarkdown(report) {
       `**Title:** ${candidate.tool_input.title}`,
       "",
       `**Connector:** \`${candidate.tool_input.connector_label}\``,
+      "",
+      `**Destination:** ${candidate.tool_input.founder_id ? `${candidate.profile_name ?? "Profile"} (\`${candidate.tool_input.founder_id}\`)` : "Company knowledge"}`,
       "",
       "**Exact content to send:**",
       "",
@@ -9715,7 +9759,7 @@ async function handleUserPrompt(payload, now = /* @__PURE__ */ new Date()) {
           .map((candidate) => candidate.id)
           .join(
             ", ",
-          )} from report ${result.report.report_id}. Call add_knowledge only with each candidate's exact reviewed arguments.`,
+          )} from report ${result.report.report_id}. Call add_knowledge only with each candidate's exact reviewed arguments, including its founder_id when present. Changing the destination requires a new report and approval.`,
       );
     } catch (error) {
       return promptContext(
@@ -9726,7 +9770,7 @@ async function handleUserPrompt(payload, now = /* @__PURE__ */ new Date()) {
   if (!profile.allowImplicitIngestion) return null;
   if (EXPLICIT_INGESTION_INTENT.test(prompt2)) {
     return promptContext(
-      `The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed ${profile.sourceSkill} skill, generate a digest-bound review report, and wait for the report's exact approval command before calling ${profile.displayName} add_knowledge.`,
+      `The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed ${profile.sourceSkill} skill. For a Profile destination, read list_profiles and copy its exact founder_id into the report; for company knowledge, omit founder_id. Generate a digest-bound review report and wait for its exact approval command before calling ${profile.displayName} add_knowledge.`,
     );
   }
   if (SOURCE_CONTEXT_INTENT.test(prompt2)) {

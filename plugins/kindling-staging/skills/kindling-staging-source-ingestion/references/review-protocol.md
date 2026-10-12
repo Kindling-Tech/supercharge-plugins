@@ -3,7 +3,9 @@
 ## Report integrity
 
 The bundled script canonicalizes the exact Kindling Staging tool arguments and computes
-SHA-256 digests for every candidate and the report. Reports expire according to
+SHA-256 digests for every candidate and the report. The candidate digest binds
+`founder_id` when present, so changing the Profile, adding a Profile to a company
+save, or dropping a Profile ID invalidates the approval. Reports expire according to
 the customer policy.
 
 Standard report output shows safe candidates in full and withheld categories by

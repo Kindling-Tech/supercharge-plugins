@@ -1,6 +1,6 @@
 ---
 name: kindling-source-ingestion
-description: Safely review a user-approved knowledge source for durable, public-marketing-safe knowledge; configure the customer policy, filter sensitive information, format exact Kindling payloads, obtain approval, and ingest. Use when notes, meetings, documents, URLs, files, or another connected source may be worth transferring to Kindling. Do not use for ordinary Kindling recall or unrelated platform features.
+description: Safely review a user-approved knowledge source for durable, public-marketing-safe knowledge; configure the customer policy, filter sensitive information, resolve company or Profile destinations, format exact Kindling payloads, obtain approval, and ingest. Use when notes, meetings, documents, URLs, files, or another connected source may be worth transferring to Kindling. Do not use for ordinary Kindling recall or unrelated platform features.
 ---
 
 # Kindling source ingestion
@@ -83,6 +83,22 @@ same interactive wizard.
    scope and identify new or changed source material. Accept pasted text, local
    files, public URLs, or any source connector the user already authorized.
 
+### Resolve the knowledge destination
+
+Before generating a report, use this environment's `list_profiles` to resolve a
+requested Profile by its exact ID and name. It lists every live founders-table
+row, including the company brand-voice Profile. All returned IDs follow the same
+Profile contract. Do not infer the target from the login or private source text.
+Ask which Profile is meant when "my voice" or a name is ambiguous.
+
+For a Profile save, copy `founder_id` and its roster `profile_name` into each
+candidate. The name labels the local review; only the ID is a tool argument.
+For company-level knowledge, omit those fields. Follow the destination the user
+requests, including company-level brand guidance. Resolve it before approval;
+changing the ID or switching between company and Profile needs a new report.
+If the live server lacks the roster or targeting input, stop Profile saves and
+explain the missing capability; do not silently save to the company instead.
+
 ### 2. Extract and filter
 
 For each approved, new, or changed source:
@@ -119,13 +135,16 @@ exact `APPROVE` command shown in the report.
 For each approved candidate:
 
 1. Call Kindling `search_memory` with a narrow query derived only from the
-   already-approved safe wording.
+   already-approved safe wording, passing the candidate's `founder_id`
+   when present.
 2. If the fact is already known, do not write it. Explain the duplicate.
 3. If it corrects stored knowledge, make the correction explicit in the
    approved candidate. Any edit requires a new report and approval.
 4. Call `add_knowledge` with the exact reviewed arguments. Do not add, remove,
    or normalize fields after approval.
-5. Report the returned `source_id` and status. The success hook records a
+5. Check the returned `knowledge_scope` and `founder_id` against the reviewed
+   destination, then report the `source_id` and status. The receipt confirms
+   capture; use `get_ingestion_status` for the compilation verdict. The success hook records a
    metadata-only receipt and consumes that approval.
 6. Do not retry a successful item. On failure, follow the bounded behavior in
    [review-protocol.md](references/review-protocol.md).

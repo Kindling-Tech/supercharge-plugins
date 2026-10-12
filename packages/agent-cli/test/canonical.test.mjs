@@ -23,9 +23,38 @@ test("tool digest includes every writable field", () => {
     ["content", "Changed"],
     ["origin_uri", "https://example.com"],
     ["title", "Changed title"],
+    ["founder_id", "11111111-1111-1111-1111-111111111111"],
   ]) {
     assert.notEqual(toolInputDigest({ ...base, [key]: value }), digest);
   }
+});
+
+test("Profile destination is exact and company digests remain compatible", () => {
+  const company = { content: "Safe voice preference" };
+  const profile = {
+    ...company,
+    founder_id: "11111111-1111-1111-1111-111111111111",
+  };
+  assert.equal(
+    toolInputDigest(company),
+    toolInputDigest({ ...company, founder_id: null }),
+  );
+  assert.notEqual(toolInputDigest(company), toolInputDigest(profile));
+  assert.notEqual(
+    toolInputDigest(profile),
+    toolInputDigest({
+      ...profile,
+      founder_id: "22222222-2222-2222-2222-222222222222",
+    }),
+  );
+  assert.throws(
+    () => toolInputDigest({ ...company, founder_id: "My Profile" }),
+    /Profile UUID/,
+  );
+  assert.throws(
+    () => toolInputDigest({ ...company, company_id: "other" }),
+    /Unknown Kindling tool argument/,
+  );
 });
 
 test("source content digest normalizes CRLF only", () => {

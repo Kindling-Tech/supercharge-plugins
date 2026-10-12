@@ -16,11 +16,13 @@ const NOW = new Date("2026-08-31T10:15:00.000Z");
 const REPORT_ID = "KIR-20260831-101500-ab12";
 const TOOL_NAME = "mcp__kindling__add_knowledge";
 
-async function setup() {
+async function setup(founderId = null) {
   const workspace = await temporaryWorkspace();
+  const input = safeReportInput();
+  if (founderId) input.candidates[0].founder_id = founderId;
   const report = await createReport({
     kindlingDir: workspace.kindlingDir,
-    input: safeReportInput(),
+    input,
     now: NOW,
     reportId: REPORT_ID,
   });
@@ -127,6 +129,53 @@ test("wrong digest does not create approval", async () => {
       .permissionDecision,
     "deny",
   );
+});
+
+test("approval cannot be retargeted to another Profile or company knowledge", async () => {
+  const founderId = "11111111-1111-1111-1111-111111111111";
+  const { candidate, payload, report, root } = await setup(founderId);
+  await handleUserPrompt(
+    {
+      cwd: root,
+      prompt: `APPROVE ${report.report_id} ${report.report_digest.slice(0, 12)} ${candidate.id}`,
+      session_id: "session-1",
+    },
+    NOW,
+  );
+  assert.equal(await handleBeforeWrite(payload, NOW), null);
+  for (const founder_id of [null, "22222222-2222-2222-2222-222222222222"]) {
+    const denied = await handleBeforeWrite(
+      {
+        ...payload,
+        tool_input: { ...payload.tool_input, founder_id },
+      },
+      NOW,
+    );
+    assert.equal(denied.hookSpecificOutput.permissionDecision, "deny");
+  }
+});
+
+test("company approval cannot acquire a Profile target", async () => {
+  const { candidate, payload, report, root } = await setup();
+  await handleUserPrompt(
+    {
+      cwd: root,
+      prompt: `APPROVE ${report.report_id} ${report.report_digest.slice(0, 12)} ${candidate.id}`,
+      session_id: "session-1",
+    },
+    NOW,
+  );
+  const denied = await handleBeforeWrite(
+    {
+      ...payload,
+      tool_input: {
+        ...payload.tool_input,
+        founder_id: "11111111-1111-1111-1111-111111111111",
+      },
+    },
+    NOW,
+  );
+  assert.equal(denied.hookSpecificOutput.permissionDecision, "deny");
 });
 
 test("approval is bound to the approving session", async () => {

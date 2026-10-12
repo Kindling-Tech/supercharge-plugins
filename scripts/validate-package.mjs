@@ -8,6 +8,7 @@ const expectedTools = [
   "add_knowledge",
   "fetch_memory",
   "get_ingestion_status",
+  "list_profiles",
   "read_source",
   "search_memory",
   "search_sources",

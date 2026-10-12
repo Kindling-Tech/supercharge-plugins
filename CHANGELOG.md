@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1 - 2026-10-12
+
+- Added Profile discovery and explicit company or Profile destination guidance
+  to both production and staging knowledge skills and default prompts.
+- Enabled `list_profiles`; documented `founder_id` on knowledge search and saves.
+  Profile saves check the live server capability before preparing a transfer.
+- Included the exact Profile ID in review reports and approval digests. Changing
+  or removing a reviewed destination now requires a new report and approval.
+
 ## 1.3.0 - 2026-10-12
 
 - Enabled the read-only `search_sources` and `read_source` tools in the

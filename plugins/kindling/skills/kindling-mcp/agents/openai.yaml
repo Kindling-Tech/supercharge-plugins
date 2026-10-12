@@ -1,12 +1,12 @@
 interface:
   display_name: "Kindling MCP"
   short_description: "Use Kindling knowledge tools correctly"
-  default_prompt: "Use $kindling-mcp to answer this from Kindling knowledge or prepare a reviewed knowledge update."
+  default_prompt: "Use $kindling-mcp to resolve the requested Profile from list_profiles, answer from Kindling knowledge, or prepare a reviewed company or Profile update."
 dependencies:
   tools:
     - type: "mcp"
       value: "kindling"
-      description: "Search, fetch, ingest, and check knowledge in the connected Kindling workspace."
+      description: "List Profiles, search, fetch, ingest, and check knowledge in the connected Kindling workspace."
       transport: "streamable_http"
       url: "https://api.kindling.team/mcp"
 policy:

@@ -19,6 +19,27 @@ import { renderPolicy } from "../src/policy.mjs";
 const NOW = new Date("2026-08-31T10:15:00.000Z");
 const REPORT_ID = "KIR-20260831-101500-ab12";
 
+test("a Profile report displays and binds the requested destination", async () => {
+  const { kindlingDir } = await temporaryWorkspace();
+  const input = safeReportInput();
+  input.candidates[0].founder_id = "11111111-1111-1111-1111-111111111111";
+  input.candidates[0].profile_name = "Example brand voice";
+  const report = await createReport({
+    kindlingDir,
+    input,
+    now: NOW,
+    reportId: REPORT_ID,
+  });
+  assert.equal(
+    report.candidates[0].tool_input.founder_id,
+    input.candidates[0].founder_id,
+  );
+  const markdown = renderReportMarkdown(report);
+  assert.match(markdown, /Example brand voice/);
+  assert.match(markdown, /11111111-1111-1111-1111-111111111111/);
+  assert.equal(report.candidates[0].tool_input.profile_name, undefined);
+});
+
 test("report persists exact safe inputs and withholds deterministic findings", async () => {
   const { kindlingDir, paths } = await temporaryWorkspace();
   const input = safeReportInput();

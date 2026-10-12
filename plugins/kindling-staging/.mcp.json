@@ -6,6 +6,7 @@
       "oauth_resource": "https://api.staging.kindling.team/mcp",
       "default_tools_approval_mode": "approve",
       "enabled_tools": [
+        "list_profiles",
         "search_memory",
         "fetch_memory",
         "add_knowledge",

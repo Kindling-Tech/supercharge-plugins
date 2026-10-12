@@ -1,12 +1,12 @@
 interface:
   display_name: "Kindling Source Ingestion"
   short_description: "Review and safely ingest external knowledge"
-  default_prompt: "Use $kindling-source-ingestion to review this source and prepare only safe, durable knowledge for Kindling."
+  default_prompt: "Use $kindling-source-ingestion to review this source, resolve its company or Profile destination, and prepare only safe, durable knowledge for Kindling."
 dependencies:
   tools:
     - type: "mcp"
       value: "kindling"
-      description: "Search and ingest approved knowledge in the connected Kindling workspace."
+      description: "List Profiles, search and ingest approved company or Profile knowledge in the connected Kindling workspace."
       transport: "streamable_http"
       url: "https://api.kindling.team/mcp"
 policy:

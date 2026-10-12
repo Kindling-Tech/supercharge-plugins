@@ -22,6 +22,16 @@ test("production and staging profiles isolate servers, state, and approvals", ()
     targetToolInputDigest(input, production),
     targetToolInputDigest(input, staging),
   );
+  const target = {
+    ...input,
+    founder_id: "11111111-1111-1111-1111-111111111111",
+  };
+  for (const environment of [production, staging]) {
+    assert.notEqual(
+      targetToolInputDigest(target, environment),
+      targetToolInputDigest(input, environment),
+    );
+  }
 });
 
 test("report IDs and report targets are environment specific", () => {

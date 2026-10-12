@@ -1,6 +1,6 @@
 {
   "name": "kindling",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Review and safely ingest durable source knowledge into Kindling.",
   "author": {
     "name": "Kindling",
@@ -22,7 +22,8 @@
     "defaultPrompt": [
       "Review this source for safe Kindling ingestion.",
       "Set up my Kindling ingestion policy.",
-      "Show what has been sent to Kindling."
+      "Show what has been sent to Kindling.",
+      "Save these voice preferences to the Profile I choose from Kindling."
     ]
   },
   "mcpServers": "./.mcp.json"

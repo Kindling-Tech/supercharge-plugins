@@ -47,7 +47,18 @@ export function normalizeToolInput(input) {
   if (typeof input.content !== "string" || !input.content.trim()) {
     throw new TypeError("Kindling tool input requires non-empty content");
   }
-  return {
+  const allowed = new Set([
+    "connector_label",
+    "content",
+    "origin_uri",
+    "title",
+    "founder_id",
+  ]);
+  for (const key of Object.keys(input)) {
+    if (!allowed.has(key))
+      throw new TypeError(`Unknown Kindling tool argument: ${key}`);
+  }
+  const normalized = {
     connector_label:
       input.connector_label === undefined || input.connector_label === null
         ? null
@@ -62,6 +73,20 @@ export function normalizeToolInput(input) {
         ? null
         : String(input.title),
   };
+  if (input.founder_id !== undefined && input.founder_id !== null) {
+    if (
+      typeof input.founder_id !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        input.founder_id,
+      )
+    ) {
+      throw new TypeError(
+        "founder_id must be an exact Profile UUID from list_profiles",
+      );
+    }
+    normalized.founder_id = input.founder_id;
+  }
+  return normalized;
 }
 
 export function toolInputDigest(input) {

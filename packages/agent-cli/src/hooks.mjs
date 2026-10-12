@@ -85,7 +85,7 @@ export async function handleUserPrompt(payload, now = new Date()) {
           .map((candidate) => candidate.id)
           .join(
             ", ",
-          )} from report ${result.report.report_id}. Call add_knowledge only with each candidate's exact reviewed arguments.`,
+          )} from report ${result.report.report_id}. Call add_knowledge only with each candidate's exact reviewed arguments, including its founder_id when present. Changing the destination requires a new report and approval.`,
       );
     } catch (error) {
       return promptContext(
@@ -96,7 +96,7 @@ export async function handleUserPrompt(payload, now = new Date()) {
   if (!profile.allowImplicitIngestion) return null;
   if (EXPLICIT_INGESTION_INTENT.test(prompt)) {
     return promptContext(
-      `The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed ${profile.sourceSkill} skill, generate a digest-bound review report, and wait for the report's exact approval command before calling ${profile.displayName} add_knowledge.`,
+      `The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed ${profile.sourceSkill} skill. For a Profile destination, read list_profiles and copy its exact founder_id into the report; for company knowledge, omit founder_id. Generate a digest-bound review report and wait for its exact approval command before calling ${profile.displayName} add_knowledge.`,
     );
   }
   if (SOURCE_CONTEXT_INTENT.test(prompt)) {

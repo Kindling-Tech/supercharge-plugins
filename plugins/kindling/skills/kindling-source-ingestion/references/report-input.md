@@ -33,3 +33,11 @@ Write this JSON only under gitignored `.kindling/state/`, then pass its path to
 Candidate IDs use `KI-000`. A private `origin_uri` is rejected. Candidates that
 still contain deterministic sensitive markers are automatically withheld and
 are not persisted in the report.
+
+## Profile destinations
+
+For a Profile candidate, add `founder_id` copied exactly from `list_profiles`
+and optional `profile_name` from the same roster row. The report displays the
+name and ID; the exact tool arguments and approval digest include `founder_id`.
+Both people and company brand-voice Profiles use these fields. For a company-level
+candidate, omit both. Never change the destination after report approval.

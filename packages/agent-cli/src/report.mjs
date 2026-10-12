@@ -162,7 +162,16 @@ function normalizeCandidate(raw, index, provider, policy) {
   }
   rejectUnknown(
     raw,
-    new Set(["id", "title", "content", "reason", "removed", "origin_uri"]),
+    new Set([
+      "id",
+      "title",
+      "content",
+      "reason",
+      "removed",
+      "origin_uri",
+      "founder_id",
+      "profile_name",
+    ]),
     `candidates[${index}]`,
   );
   const id = validateShortText(raw.id, `candidates[${index}].id`, { max: 20 });
@@ -207,7 +216,21 @@ function normalizeCandidate(raw, index, provider, policy) {
     content,
     origin_uri: null,
     title,
+    founder_id: raw.founder_id,
   });
+  const profileName = validateShortText(
+    raw.profile_name,
+    `candidates[${index}].profile_name`,
+    {
+      required: false,
+      max: 200,
+    },
+  );
+  if (profileName && !toolInput.founder_id) {
+    throw new Error(
+      `${id} profile_name requires founder_id from list_profiles`,
+    );
+  }
   const findings = scanCandidate(
     { content: `${content}\n${reason ?? ""}`, title },
     policy,
@@ -219,6 +242,7 @@ function normalizeCandidate(raw, index, provider, policy) {
     removed: [...new Set(removed)].sort(),
     tool_input: toolInput,
     tool_input_digest: targetToolInputDigest(toolInput),
+    ...(profileName ? { profile_name: profileName } : {}),
   };
 }
 
@@ -340,6 +364,12 @@ export function renderReportMarkdown(report) {
       `**Title:** ${candidate.tool_input.title}`,
       "",
       `**Connector:** \`${candidate.tool_input.connector_label}\``,
+      "",
+      `**Destination:** ${
+        candidate.tool_input.founder_id
+          ? `${candidate.profile_name ?? "Profile"} (\`${candidate.tool_input.founder_id}\`)`
+          : "Company knowledge"
+      }`,
       "",
       "**Exact content to send:**",
       "",
