@@ -1,6 +1,6 @@
 {
   "name": "kindling-agent-plugins-workspace",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -14,8 +14,9 @@
     "validate:package": "node scripts/validate-package.mjs",
     "check:moat": "bash plugins/kindling/scripts/check_moat.sh && bash plugins/kindling-staging/scripts/check_moat.sh",
     "smoke:npx": "node scripts/smoke-npx.mjs",
-    "format": "prettier --write plugins/kindling plugins/kindling-staging packages/agent-cli scripts/*.mjs package.json README.md CHANGELOG.md docs/tasks .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
-    "format:check": "prettier --check plugins/kindling plugins/kindling-staging packages/agent-cli scripts/*.mjs package.json README.md CHANGELOG.md docs/tasks .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
+    "bundle:openai": "node scripts/build-openai-bundle.mjs",
+    "format": "prettier --write plugins/kindling plugins/kindling-staging packages/agent-cli scripts/*.mjs package.json README.md CHANGELOG.md docs/tasks distribution .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
+    "format:check": "prettier --check plugins/kindling plugins/kindling-staging packages/agent-cli scripts/*.mjs package.json README.md CHANGELOG.md docs/tasks distribution .agents/plugins/marketplace.json .claude-plugin/marketplace.json",
     "check": "npm run build && npm test && npm run test:legacy && npm run validate:skills && npm run validate:package && npm run format:check && npm run check:moat && npm run smoke:npx"
   },
   "devDependencies": {

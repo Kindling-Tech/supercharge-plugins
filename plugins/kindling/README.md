@@ -9,6 +9,29 @@ The plugin does not run or proxy the service. Knowledge sources are optional:
 the ingestion skill may use notes, files, URLs, or connectors the user already
 authorized in the host, but none are bundled with or required by this plugin.
 
+## Data flow and network access
+
+The plugin makes no network calls of its own. Every request to Kindling goes
+through the host's MCP client to `https://api.kindling.team/mcp`, after the
+user signs in through Kindling's browser OAuth flow:
+
+- Read tools (`list_profiles`, `search_memory`, `fetch_memory`,
+  `search_sources`, `read_source`, `get_ingestion_status`) send search queries,
+  Profile IDs, document paths, and source IDs, and return the connected
+  company's Kindling knowledge.
+- The write tool (`add_knowledge`) sends only candidate knowledge the user
+  approved in a local review report, plus its destination Profile ID when one
+  is selected.
+
+Locally, the hooks and skills run the bundled Node.js runtime
+(`dist/kindling-guard.cjs`, compiled from `packages/agent-cli/src` in this
+repository). It reads the customer policy and writes reports and
+metadata-only ledgers under the workspace's `.kindling/` directory. At Claude
+Code startup the `SessionStart` hook runs `claude mcp list` to check the
+Kindling connection and, only when signed out, starts Claude Code's own MCP
+sign-in, which opens the Kindling sign-in page in the browser. Turn this off
+with the plugin's `auto_connect` setting. No telemetry is collected. See the [Kindling privacy policy](https://kindling.team/privacy).
+
 ## Components
 
 - Two Agent Skills: safe source ingestion and Kindling knowledge MCP usage.

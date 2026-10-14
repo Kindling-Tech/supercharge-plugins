@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.4 - 2026-10-14
+
+- Prepared directory submissions. The Claude README now states every network
+  destination and what the bundled runtime and hooks run locally.
+- Fixed the Codex listing for the OpenAI directory limits: a 30-character short
+  description, three default prompts, a logo, and support, privacy, and terms
+  URLs.
+- Added `npm run bundle:openai`, which builds a hook-free ZIP for the OpenAI
+  plugin directory. That build records approval through the bundled `approve`
+  command and relies on the host's tool approval instead of the write hook.
+
 ## 1.3.3 - 2026-10-14
 
 - Licensed the plugins, CLI package, and repository under Apache-2.0 and
