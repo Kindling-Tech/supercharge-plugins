@@ -8120,7 +8120,7 @@ var import_node_path3 = require("node:path");
 var import_yaml2 = __toESM(require_dist(), 1);
 
 // src/constants.mjs
-var PLUGIN_VERSION = "1.3.1";
+var PLUGIN_VERSION = "1.3.2";
 var POLICY_SCHEMA_VERSION = 2;
 var CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;
 var APPROVAL_TTL_MIN = 5;

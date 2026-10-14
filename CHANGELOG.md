@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2 - 2026-10-14
+
+- Renamed the Codex MCP config from `.mcp.json` to `codex.mcp.json` in both
+  plugins. Claude Code auto-discovers `.mcp.json` and rejected its Codex-only
+  `tools` approval map, so `claude plugin validate --strict` now passes.
+
 ## 1.3.1 - 2026-10-12
 
 - Added Profile discovery and explicit company or Profile destination guidance

@@ -79,7 +79,7 @@ for (const profile of profiles) {
   const claudeManifest = await json(
     resolve(plugin, ".claude-plugin/plugin.json"),
   );
-  const mcp = await json(resolve(plugin, ".mcp.json"));
+  const mcp = await json(resolve(plugin, "codex.mcp.json"));
   const claudeMcp = await json(resolve(plugin, "claude.mcp.json"));
   const hooks = await json(resolve(plugin, "hooks/hooks.json"));
   const server = mcp.mcpServers[profile.server];
@@ -102,7 +102,7 @@ for (const profile of profiles) {
     `${profile.id} CLI and plugin versions differ`,
   );
   assert(
-    codexManifest.mcpServers === "./.mcp.json",
+    codexManifest.mcpServers === "./codex.mcp.json",
     `${profile.id} Codex MCP path is not canonical`,
   );
   assert(
