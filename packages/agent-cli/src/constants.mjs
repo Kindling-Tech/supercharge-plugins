@@ -1,4 +1,4 @@
-export const PLUGIN_VERSION = "1.3.2";
+export const PLUGIN_VERSION = "1.3.3";
 export const POLICY_SCHEMA_VERSION = 2;
 export const POLICY_RELATIVE_PATH = ".kindling/ingestion-policy.yaml";
 export const CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;

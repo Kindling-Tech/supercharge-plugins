@@ -1,6 +1,6 @@
 {
   "name": "kindling",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Review and safely ingest durable source knowledge into Kindling.",
   "author": {
     "name": "Kindling",
@@ -8,7 +8,7 @@
   },
   "homepage": "https://kindling.team",
   "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "keywords": ["kindling", "mcp", "knowledge", "ingestion"],
   "skills": "./skills/",
   "interface": {

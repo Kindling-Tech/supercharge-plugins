@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.3 - 2026-10-14
+
+- Licensed the plugins, CLI package, and repository under Apache-2.0 and
+  shipped a `LICENSE` file with each plugin and the npm package.
+
 ## 1.3.2 - 2026-10-14
 
 - Renamed the Codex MCP config from `.mcp.json` to `codex.mcp.json` in both

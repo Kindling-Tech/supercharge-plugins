@@ -1,6 +1,6 @@
 {
   "name": "kindling-staging",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Review and safely ingest durable source knowledge into Kindling Staging.",
   "author": {
     "name": "Kindling",
@@ -8,7 +8,7 @@
   },
   "homepage": "https://app.staging.kindling.team",
   "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "keywords": ["kindling", "staging", "mcp", "knowledge", "ingestion"],
   "skills": "./skills/",
   "interface": {
