@@ -8120,7 +8120,7 @@ var import_node_path3 = require("node:path");
 var import_yaml2 = __toESM(require_dist(), 1);
 
 // src/constants.mjs
-var PLUGIN_VERSION = "1.3.4";
+var PLUGIN_VERSION = "1.4.0";
 var POLICY_SCHEMA_VERSION = 2;
 var CANDIDATE_ID_PATTERN = /^KI-\d{3}$/;
 var APPROVAL_TTL_MIN = 5;
@@ -9768,6 +9768,17 @@ async function handleUserPrompt(payload, now = /* @__PURE__ */ new Date()) {
     }
   }
   if (!profile.allowImplicitIngestion) return null;
+  const mediaPlacement =
+    /\b(?:attach|upload|save|add|put)\b[\s\S]*\b(?:idea|shoot|footage|thumbnail|reference video)\b/i.test(
+      prompt2,
+    );
+  const knowledgeDestination =
+    /\b(?:knowledge|memory|remember|learn|profile)\b/i.test(prompt2);
+  if (mediaPlacement && !knowledgeDestination) {
+    return promptContext(
+      `Use the installed ${profile.environment === "staging" ? "kindling-staging-media" : "kindling-media"} skill for this media request. Attaching a file does not authorize durable knowledge ingestion. Analyze only when its contents are needed.`,
+    );
+  }
   if (EXPLICIT_INGESTION_INTENT.test(prompt2)) {
     return promptContext(
       `The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed ${profile.sourceSkill} skill. For a Profile destination, read list_profiles and copy its exact founder_id into the report; for company knowledge, omit founder_id. Generate a digest-bound review report and wait for its exact approval command before calling ${profile.displayName} add_knowledge.`,

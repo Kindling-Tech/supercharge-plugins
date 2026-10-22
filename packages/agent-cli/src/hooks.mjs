@@ -94,6 +94,17 @@ export async function handleUserPrompt(payload, now = new Date()) {
     }
   }
   if (!profile.allowImplicitIngestion) return null;
+  const mediaPlacement =
+    /\b(?:attach|upload|save|add|put)\b[\s\S]*\b(?:idea|shoot|footage|thumbnail|reference video)\b/i.test(
+      prompt,
+    );
+  const knowledgeDestination =
+    /\b(?:knowledge|memory|remember|learn|profile)\b/i.test(prompt);
+  if (mediaPlacement && !knowledgeDestination) {
+    return promptContext(
+      `Use the installed ${profile.environment === "staging" ? "kindling-staging-media" : "kindling-media"} skill for this media request. Attaching a file does not authorize durable knowledge ingestion. Analyze only when its contents are needed.`,
+    );
+  }
   if (EXPLICIT_INGESTION_INTENT.test(prompt)) {
     return promptContext(
       `The user explicitly requested a knowledge transfer, which counts as consent to inspect only the source scope they named. Use the installed ${profile.sourceSkill} skill. For a Profile destination, read list_profiles and copy its exact founder_id into the report; for company knowledge, omit founder_id. Generate a digest-bound review report and wait for its exact approval command before calling ${profile.displayName} add_knowledge.`,

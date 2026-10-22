@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0 - 2026-10-22
+
+- Add production and staging media skills, file-transfer tools, explicit analysis,
+  typed Idea/Shoot attachments and operation polling.
+- Keep ordinary media placement outside the reviewed knowledge-ingestion workflow.
+- Check live tool availability while backend capabilities roll out.
+
 ## 1.3.4 - 2026-10-14
 
 - Prepared directory submissions. The Claude README now states every network

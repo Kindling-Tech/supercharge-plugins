@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kindling Staging Media"
+  short_description: "Upload, analyze and attach Kindling media"
+  default_prompt: "Use $kindling-staging-media to upload a file and choose analysis or attachment from the user's request."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kindling-staging"
+      description: "Upload, analyze and attach files in staging Kindling."
+      transport: "streamable_http"
+      url: "https://api.staging.kindling.team/mcp"
+policy:
+  allow_implicit_invocation: false

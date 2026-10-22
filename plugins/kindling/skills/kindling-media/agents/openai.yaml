@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kindling Media"
+  short_description: "Upload, analyze and attach Kindling media"
+  default_prompt: "Use $kindling-media to upload a file and choose analysis or attachment from the user's request."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kindling"
+      description: "Upload, analyze and attach files in production Kindling."
+      transport: "streamable_http"
+      url: "https://api.kindling.team/mcp"
+policy:
+  allow_implicit_invocation: true

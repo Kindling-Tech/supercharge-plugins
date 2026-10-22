@@ -1,7 +1,7 @@
 {
   "name": "kindling-staging",
-  "version": "1.3.4",
-  "description": "Review and safely ingest durable source knowledge into Kindling Staging.",
+  "version": "1.4.0",
+  "description": "Use Kindling knowledge and upload, analyze or attach media by file ID.",
   "author": {
     "name": "Kindling",
     "url": "https://kindling.team"
@@ -13,8 +13,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Kindling Staging",
-    "shortDescription": "Test reviewed ingestion against staging",
-    "longDescription": "Internal testing plugin for reviewing knowledge, filtering private information, and ingesting only approved content through Kindling Staging.",
+    "shortDescription": "Knowledge and media tools",
+    "longDescription": "Read Kindling knowledge, review durable knowledge writes, and upload, analyze or attach media when requested.",
     "developerName": "Kindling",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],

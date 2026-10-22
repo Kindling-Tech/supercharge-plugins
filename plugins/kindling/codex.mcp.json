@@ -12,7 +12,18 @@
         "add_knowledge",
         "get_ingestion_status",
         "search_sources",
-        "read_source"
+        "read_source",
+        "prepare_file_upload",
+        "get_file_upload_status",
+        "complete_file_upload",
+        "analyze_file",
+        "attach_file",
+        "get_file_operation",
+        "list_company_ideas",
+        "get_idea_by_id",
+        "get_idea_review",
+        "list_shoot_days",
+        "get_shoot_day"
       ],
       "tools": {
         "add_knowledge": {

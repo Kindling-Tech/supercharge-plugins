@@ -333,3 +333,27 @@ test("ALL approval honors customer policy", async () => {
     /does not permit approve-all/,
   );
 });
+
+test("saving a video to a Shoot routes to media without knowledge review", async () => {
+  const result = await handleUserPrompt(
+    { prompt: "Save this video to the shoot", session_id: "s" },
+    NOW,
+  );
+  assert.match(result.hookSpecificOutput.additionalContext, /kindling-media/);
+  assert.doesNotMatch(
+    result.hookSpecificOutput.additionalContext,
+    /digest-bound review/,
+  );
+});
+
+test("an explicit media knowledge request retains reviewed ingestion", async () => {
+  const result = await handleUserPrompt(
+    { prompt: "Save this video to company knowledge", session_id: "s" },
+    NOW,
+  );
+  assert.match(
+    result.hookSpecificOutput.additionalContext,
+    /kindling-source-ingestion/,
+  );
+  assert.match(result.hookSpecificOutput.additionalContext, /approval/);
+});

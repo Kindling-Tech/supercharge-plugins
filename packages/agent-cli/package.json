@@ -1,6 +1,6 @@
 {
   "name": "@kindling/agent",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "description": "Install and operate the Kindling safe-ingestion agent plugin.",
   "type": "module",
   "bin": {

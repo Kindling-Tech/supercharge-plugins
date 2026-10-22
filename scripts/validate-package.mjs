@@ -6,6 +6,18 @@ import YAML from "yaml";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const expectedTools = [
   "add_knowledge",
+  "prepare_file_upload",
+  "get_file_upload_status",
+  "complete_file_upload",
+  "analyze_file",
+  "attach_file",
+  "get_file_operation",
+  "list_company_ideas",
+  "get_idea_by_id",
+  "get_idea_review",
+  "list_shoot_days",
+  "get_shoot_day",
+
   "fetch_memory",
   "get_ingestion_status",
   "list_profiles",
@@ -20,7 +32,7 @@ const profiles = [
     implicit: true,
     mcpUrl: "https://api.kindling.team/mcp",
     server: "kindling",
-    skills: ["kindling-mcp", "kindling-source-ingestion"],
+    skills: ["kindling-mcp", "kindling-source-ingestion", "kindling-media"],
   },
   {
     guard: "kindling-staging-guard.cjs",
@@ -28,7 +40,11 @@ const profiles = [
     implicit: false,
     mcpUrl: "https://api.staging.kindling.team/mcp",
     server: "kindling-staging",
-    skills: ["kindling-staging-mcp", "kindling-staging-source-ingestion"],
+    skills: [
+      "kindling-staging-mcp",
+      "kindling-staging-source-ingestion",
+      "kindling-staging-media",
+    ],
   },
 ];
 

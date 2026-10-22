@@ -154,3 +154,5 @@ For each approved candidate:
 State how many sources were checked, candidates approved, candidates withheld,
 duplicates skipped, writes accepted, and failures remaining. Do not include raw
 withheld content in the completion message.
+
+For ordinary uploads, file analysis, Idea media/references or Shoot attachments, use `kindling-media`. An upload or an instruction to attach a file does not authorize a knowledge write.

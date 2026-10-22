@@ -123,3 +123,9 @@ npm run check
 
 The detailed internal build task is tracked in
 [`docs/tasks/2026-08-31-kindling-plugin.md`](docs/tasks/2026-08-31-kindling-plugin.md).
+
+Media uploads and attachments use `kindling-media` (`kindling-staging-media` only
+when staging is explicitly requested). The skill covers direct file transfer,
+file IDs, analysis by intent, Idea media/thumbnail/references and Shoot supporting
+media/footage. Media tools require a backend that exposes them and content scopes;
+ordinary uploads never imply knowledge ingestion.
