@@ -18,6 +18,13 @@ user signs in through Kindling's OAuth flow:
   `search_sources`, `read_source`, `get_ingestion_status`) send search queries,
   Profile IDs, document paths, and source IDs, and return the connected
   company's Kindling knowledge.
+- Content read tools (`search_content`, `read_content`) send a search query,
+  optional filters, and content references, and return excerpts and originals
+  of the connected company's own Ideas and published posts.
+- Inspiration read tools (`search_inspiration`, `read_inspiration`) send a
+  search query, optional platform and media filters, and item IDs, and return
+  standout public posts the Kindling team flagged, with the team's notes and a
+  breakdown of each post. They return no customer data.
 - The write tool (`add_knowledge`) sends only candidate knowledge the user
   approved in a local review report, plus its destination Profile ID when one
   is selected.

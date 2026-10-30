@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.5.0 - 2026-10-30
+
+- Enabled the read-only `search_content` and `read_content` tools in the
+  production and staging plugins, so an agent can check the company's own
+  active Ideas and published posts before proposing something similar.
+  `read_content` replaces the earlier `get_content`.
+- Enabled the read-only `search_inspiration` and `read_inspiration` tools for a
+  library of standout posts the Kindling team flagged, with the team's notes
+  and a breakdown of each post, for formats, hooks and creative direction.
+- Updated the knowledge skills, tool contract and data-flow READMEs: inspiration
+  is never the company's own history or voice, item URLs are cited only to the
+  person, and agents continue without these tools while the backend rolls out.
+
 ## 1.4.0 - 2026-10-22
 
 - Add production and staging media skills, file-transfer tools, explicit analysis,

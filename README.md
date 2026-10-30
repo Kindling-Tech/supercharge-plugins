@@ -129,3 +129,9 @@ when staging is explicitly requested). The skill covers direct file transfer,
 file IDs, analysis by intent, Idea media/thumbnail/references and Shoot supporting
 media/footage. Media tools require a backend that exposes them and content scopes;
 ordinary uploads never imply knowledge ingestion.
+
+`kindling-mcp` also covers two read-only lookups that need the `content:read`
+scope: `search_content`/`read_content` check the company's own Ideas and
+published posts before something similar is proposed, and
+`search_inspiration`/`read_inspiration` search a library of standout posts the
+Kindling team flagged for formats, hooks and creative direction.

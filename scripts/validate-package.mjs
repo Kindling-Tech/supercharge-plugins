@@ -21,7 +21,11 @@ const expectedTools = [
   "fetch_memory",
   "get_ingestion_status",
   "list_profiles",
+  "read_content",
+  "read_inspiration",
   "read_source",
+  "search_content",
+  "search_inspiration",
   "search_memory",
   "search_sources",
 ].sort();
