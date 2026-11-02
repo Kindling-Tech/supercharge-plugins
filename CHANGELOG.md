@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2 - 2026-11-02
+
+- Linked the Kindling terms of service from the Claude and OpenAI READMEs.
+
 ## 1.5.1 - 2026-11-02
 
 - Answered the Claude directory review: set `privacyPolicyUrl` in the Claude

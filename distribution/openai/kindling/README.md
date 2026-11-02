@@ -46,7 +46,8 @@ The ingestion skill runs a bundled Node.js runtime
 https://github.com/Kindling-Tech/supercharge-plugins). It reads the customer
 policy and writes reports and approval records under the workspace's
 `.kindling/` directory. No telemetry is collected. See the
-[Kindling privacy policy](https://kindling.team/privacy).
+[Kindling privacy policy](https://kindling.team/privacy) and
+[terms of service](https://kindling.team/terms).
 
 ## Safety model
 

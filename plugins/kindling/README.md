@@ -56,7 +56,8 @@ metadata-only ledgers under the workspace's `.kindling/` directory. At Claude
 Code startup the `SessionStart` hook runs `claude mcp list` to check the
 Kindling connection and, only when signed out, starts Claude Code's own MCP
 sign-in, which opens the Kindling sign-in page in the browser. Turn this off
-with the plugin's `auto_connect` setting. No telemetry is collected. See the [Kindling privacy policy](https://kindling.team/privacy).
+with the plugin's `auto_connect` setting. No telemetry is collected. See the [Kindling privacy policy](https://kindling.team/privacy) and
+[terms of service](https://kindling.team/terms).
 
 ## Components
 
