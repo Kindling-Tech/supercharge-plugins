@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.1 - 2026-11-02
+
+- Answered the Claude directory review: set `privacyPolicyUrl` in the Claude
+  manifest and added the marketplace install line to the README.
+- Disclosed the media tools and signed-URL file uploads in the data-flow READMEs,
+  and corrected the skill count to three.
+
 ## 1.5.0 - 2026-10-30
 
 - Enabled the read-only `search_content` and `read_content` tools in the

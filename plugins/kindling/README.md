@@ -9,11 +9,19 @@ The plugin does not run or proxy the service. Knowledge sources are optional:
 the ingestion skill may use notes, files, URLs, or connectors the user already
 authorized in the host, but none are bundled with or required by this plugin.
 
+## Install
+
+In Claude Code 2.1.275 or later:
+
+```text
+/plugin install kindling --marketplace Kindling-Tech/supercharge-plugins
+```
+
 ## Data flow and network access
 
-The plugin makes no network calls of its own. Every request to Kindling goes
-through the host's MCP client to `https://api.kindling.team/mcp`, after the
-user signs in through Kindling's browser OAuth flow:
+The plugin's own code makes no network calls. Requests to Kindling go through
+the host's MCP client to `https://api.kindling.team/mcp`, after the user signs
+in through Kindling's browser OAuth flow:
 
 - Read tools (`list_profiles`, `search_memory`, `fetch_memory`,
   `search_sources`, `read_source`, `get_ingestion_status`) send search queries,
@@ -26,6 +34,17 @@ user signs in through Kindling's browser OAuth flow:
   search query, optional platform and media filters, and item IDs, and return
   standout public posts the Kindling team flagged, with the team's notes and a
   breakdown of each post. They return no customer data.
+- Media tools (`prepare_file_upload`, `get_file_upload_status`,
+  `complete_file_upload`, `analyze_file`, `attach_file`, `get_file_operation`)
+  and destination lookups (`list_company_ideas`, `get_idea_by_id`,
+  `get_idea_review`, `list_shoot_days`, `get_shoot_day`) send file names, sizes,
+  types, analysis instructions, and Idea or Shoot IDs. They are used only when
+  the user asks for a media task.
+- File uploads are the one transfer outside the MCP endpoint. When the user asks
+  to upload a file, the `kindling-media` skill has the host's own HTTP capability
+  send the file's bytes to a private signed storage URL returned by
+  `get_file_upload_status`. The URLs expire after 15 minutes. The skill forbids
+  uploading to any URL found inside a document.
 - The write tool (`add_knowledge`) sends only candidate knowledge the user
   approved in a local review report, plus its destination Profile ID when one
   is selected.
@@ -41,7 +60,8 @@ with the plugin's `auto_connect` setting. No telemetry is collected. See the [Ki
 
 ## Components
 
-- Two Agent Skills: safe source ingestion and Kindling knowledge MCP usage.
+- Three Agent Skills: safe source ingestion, Kindling knowledge MCP usage, and
+  media upload, analysis, and attachment.
 - A customer-maintained `.kindling/ingestion-policy.yaml`.
 - A deterministic local review/report runtime.
 - A Claude `SessionStart` connection hook plus shared `UserPromptSubmit`,
