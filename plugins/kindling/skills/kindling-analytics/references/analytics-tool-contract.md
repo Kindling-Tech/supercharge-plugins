@@ -104,20 +104,17 @@ Only when asked; say who changes and how before the call.
 
 ### `list_my_actions(profile_id?, ...)`, `get_action(...)`
 
-Open next best actions, in rank order. `profile_id` (alias `founder_id`)
-chooses whose:
-
-- omitted: the signed-in person's own actions in this company;
-- a Profile ID from `list_profiles`: that Profile's actions, as the Home page
-  shows them;
-- `"all"`: every Profile's actions.
+The company's open next best actions, in rank order, as its Home shows them.
+`profile_id` (alias `founder_id`) is a Profile ID from `list_profiles` for
+that Profile's actions, or `"all"` for every Profile's. Omitted means `"all"`.
+Access is company-level: there is no "only my own actions" mode.
 
 Each item says what kind of action it is (for example a DM or a public
 comment) and who it is about. `get_action` returns one action in full. For
 "who should I DM", keep the DM or message actions.
 
 `get_action`, `draft_message`, `mark_done`, `dismiss` and `undo` work on any
-action visible on the company's Home, not only the signed-in person's.
+action from that list.
 
 ### `draft_message(...)`
 

@@ -11,7 +11,7 @@ results as production data and never substitute it for the production
 
 Use only the `kindling-staging` MCP server. Run only when the user explicitly
 requests staging. Never substitute production tools or IDs. These tools read what the Kindling Analytics
-and Audience pages show and the person's next best actions. Exact arguments
+and Audience pages show and the company's next best actions. Exact arguments
 come from the server's own tool schemas; the per-tool notes are in
 [analytics-tool-contract.md](references/analytics-tool-contract.md).
 
@@ -97,18 +97,18 @@ Use the page's words: **Unaware → Aware → Engaging → Engaged → Co-signed
 
 **"Who should I DM?"**
 
-1. `list_profiles`; resolve whose actions the question means.
-2. `list_my_actions` with `profile_id` set to that Profile's ID, or
-   `profile_id="all"` for every Profile. Without `profile_id` it returns only
-   the signed-in person's own actions. Actions come in rank order; page to the
-   end.
-3. Keep the actions whose kind is a DM or message; each says what kind it is and
+1. `list_my_actions` with `profile_id="all"` (the default) for every Profile,
+   or one Profile's ID from `list_profiles` when the question is about one
+   person ("my", "Sam's"). Actions come in rank order, as the company's Home
+   shows them; page to the end.
+2. Keep the actions whose kind is a DM or message; each says what kind it is and
    who it is about. Use `get_action` for the detail of one.
-4. Answer with those people in rank order, which Profile each is for, and why.
+3. Answer with those people in rank order, which Profile each is for, and why.
    Offer `draft_message` for each; the person sends it themselves.
-5. No DM actions: fall back to engaged targets from `list_analytics_people`
+4. No DM actions: fall back to engaged targets from `list_analytics_people`
    with `target_status=engaged`, then co-signed lighthouses, for the same
-   Profile. Say these come from analytics, not from a next best action.
+   Profile or the whole company. Say these come from analytics, not from a
+   next best action.
 
 **Other common questions**
 
@@ -134,8 +134,9 @@ Use the page's words: **Unaware → Aware → Engaging → Engaged → Co-signed
   will change, for whom, before the call.
 - `refresh_engager_intel` is paid. Say it costs credits, ask, and pass
   `confirm=true` only after the person says yes to that refresh.
-- `mark_done`, `dismiss` and `undo` change next best actions, including
-  another Profile's on the company's Home: only when asked, for that action.
+- `mark_done`, `dismiss` and `undo` change any next best action on the
+  company's Home, whichever Profile it belongs to: only when asked, for that
+  action.
 - `draft_message` only drafts. Kindling never sends a DM, comment or connection
   request: give the draft to the person to send themselves.
 

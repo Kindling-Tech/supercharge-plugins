@@ -41,9 +41,10 @@ in through Kindling's OAuth flow:
   connection to a Profile, and the stored dossier for one person.
 - Audience and next-best-action read tools (`fetch_company_people`,
   `list_personas`, `list_my_actions`, `get_action`, `draft_message`) send
-  person, persona and action IDs, and return the company's audience records,
-  personas, the user's open next best actions, and a drafted message. Kindling never sends a message:
-  the user sends any draft themselves.
+  person, persona and action IDs and an optional Profile ID, and return the
+  company's audience records, personas, the open next best actions for every
+  Profile or one, and a drafted message. Kindling never sends a message: the
+  user sends any draft themselves.
 - Audience and action write tools (`assign_persona`, `apply_people`,
   `mark_done`, `dismiss`, `undo`) send person, persona and action IDs and the
   change the user asked for: adding, updating, marking as noise or restoring

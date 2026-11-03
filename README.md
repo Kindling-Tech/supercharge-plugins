@@ -142,8 +142,8 @@ Kindling team flagged for formats, hooks and creative direction.
 `kindling-analytics` (`kindling-staging-analytics` for staging) reads what the
 Kindling Analytics page shows: the overview, posts, people and their
 relationship stage, LinkedIn connections to a Profile, comments, and one
-person's dossier. It also reads the user's open next best
-actions, drafts messages the user sends themselves, and changes audience
+person's dossier. It also reads the company's open next
+best actions, drafts messages the user sends themselves, and changes audience
 records or actions only when asked. In Codex those writes and the paid
 `refresh_engager_intel` prompt before each call. Older servers without these
 tools are reported, not worked around with the retired analytics tools.
