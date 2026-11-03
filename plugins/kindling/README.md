@@ -40,6 +40,29 @@ in through Kindling's browser OAuth flow:
   `get_idea_review`, `list_shoot_days`, `get_shoot_day`) send file names, sizes,
   types, analysis instructions, and Idea or Shoot IDs. They are used only when
   the user asks for a media task.
+- Analytics read tools (`get_analytics_overview`, `list_posts`, `get_post`,
+  `list_analytics_people`, `get_relationship_grid`, `list_comment_activity`,
+  `list_profile_scopes`, `get_person_spotlight`, `get_engager_intel`) send a
+  time window, Profile ID, filters such as stage, persona or connection, a
+  search name, and post IDs or a person's public profile URL. They return the
+  connected company's post metrics and comments, and the people who engaged
+  with its posts: names, public profile details, relationship stage, LinkedIn
+  connection to a Profile, and the stored dossier for one person.
+- Audience and next-best-action read tools (`fetch_company_people`,
+  `list_personas`, `list_action_rules`, `list_my_actions`, `get_action`,
+  `draft_message`) send person, persona and action IDs, and return the
+  company's audience records, personas, the next best action types, the
+  user's open actions, and a drafted message. Kindling never sends a message:
+  the user sends any draft themselves.
+- Audience and action write tools (`assign_persona`, `apply_people`,
+  `restore_person_from_noise`, `set_person_customer`, `mark_done`, `dismiss`,
+  `undo`) send person, persona and action IDs and the change the user asked
+  for. They are used only when the user asks, and Codex prompts before each
+  call.
+- `refresh_engager_intel` sends one person's public profile URL so Kindling
+  rebuilds their dossier from fresh public data. It costs Kindling credits, so
+  the skill asks first and the call carries an explicit confirmation; Codex
+  also prompts before it.
 - File uploads are the one transfer outside the MCP endpoint. When the user asks
   to upload a file, the `kindling-media` skill has the host's own HTTP capability
   send the file's bytes to a private signed storage URL returned by
@@ -61,8 +84,9 @@ with the plugin's `auto_connect` setting. No telemetry is collected. See the [Ki
 
 ## Components
 
-- Three Agent Skills: safe source ingestion, Kindling knowledge MCP usage, and
-  media upload, analysis, and attachment.
+- Four Agent Skills: safe source ingestion, Kindling knowledge MCP usage,
+  media upload, analysis, and attachment, and analytics, audience, and next
+  best actions.
 - A customer-maintained `.kindling/ingestion-policy.yaml`.
 - A deterministic local review/report runtime.
 - A Claude `SessionStart` connection hook plus shared `UserPromptSubmit`,

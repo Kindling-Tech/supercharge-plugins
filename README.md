@@ -9,13 +9,16 @@ This repository is both:
 
 ## Kindling
 
-`kindling` connects the existing Kindling remote MCP server and ships exactly
-two clean-room skills:
+`kindling` connects the existing Kindling remote MCP server and ships four
+clean-room skills:
 
 - `kindling-source-ingestion` safely reviews external sources, filters sensitive
   information, formats exact Kindling payloads, requires digest-bound approval,
   and keeps a metadata-only local receipt ledger;
-- `kindling-mcp` teaches the public Kindling knowledge tool contract.
+- `kindling-mcp` teaches the public Kindling knowledge tool contract;
+- `kindling-media` uploads, analyzes, and attaches files;
+- `kindling-analytics` answers from the Analytics and Audience pages and the
+  user's next best actions.
 
 The plugin contains no Kindling backend code or private prompt material. See
 [`plugins/kindling/README.md`](plugins/kindling/README.md) and
@@ -135,3 +138,12 @@ scope: `search_content`/`read_content` check the company's own Ideas and
 published posts before something similar is proposed, and
 `search_inspiration`/`read_inspiration` search a library of standout posts the
 Kindling team flagged for formats, hooks and creative direction.
+
+`kindling-analytics` (`kindling-staging-analytics` for staging) reads what the
+Kindling Analytics page shows: the overview, posts, people and their
+relationship stage, LinkedIn connections to a Profile, comments, and one
+person's dossier. It also reads the next best action rules and the user's open
+actions, drafts messages the user sends themselves, and changes audience
+records or actions only when asked. In Codex those writes and the paid
+`refresh_engager_intel` prompt before each call. Older servers without these
+tools are reported, not worked around with the retired analytics tools.

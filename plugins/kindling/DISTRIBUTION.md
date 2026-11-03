@@ -40,17 +40,20 @@ marketplace. A new task/session is the version activation boundary.
     never place credentials in fixtures or logs.
 11. Test an unapproved write, exact approved write, changed write, success
     receipt, and failed retry.
-12. Publish the npm package with provenance and publish the marketplace commit.
-13. Start new host sessions and repeat the smoke test from the published source.
-14. Run `npm run bundle:openai` and upload `release/kindling-openai-<version>.zip`
+12. Against a non-production account, ask the analytics skill who is engaged,
+    to split that by connection, and who to DM; confirm audience and action
+    writes and `refresh_engager_intel` prompt in Codex.
+13. Publish the npm package with provenance and publish the marketplace commit.
+14. Start new host sessions and repeat the smoke test from the published source.
+15. Run `npm run bundle:openai` and upload `release/kindling-openai-<version>.zip`
     to the OpenAI plugin directory. That build has no hooks; see
     `distribution/openai/kindling/README.md` for its approval model. The Claude
     directory tracks `plugins/kindling` on `main` and rescans on push.
 
 ## Quality over time
 
-- Keep the two skill descriptions narrow; do not accumulate unrelated Kindling
-  features.
+- Keep each skill description narrow; do not accumulate unrelated Kindling
+  features. A new tool family gets its own skill, as analytics did.
 - Add a regression fixture for every demonstrated filtering or approval miss.
 - Prefer changing deterministic policy code over adding repetitive prompt text.
 - Treat policy-schema changes as data migrations.

@@ -28,6 +28,43 @@ const expectedTools = [
   "search_inspiration",
   "search_memory",
   "search_sources",
+
+  "get_analytics_overview",
+  "list_posts",
+  "get_post",
+  "list_analytics_people",
+  "get_relationship_grid",
+  "list_comment_activity",
+  "list_profile_scopes",
+  "get_person_spotlight",
+  "get_engager_intel",
+  "fetch_company_people",
+  "list_personas",
+  "list_action_rules",
+  "list_my_actions",
+  "get_action",
+  "draft_message",
+
+  "refresh_engager_intel",
+  "assign_persona",
+  "apply_people",
+  "restore_person_from_noise",
+  "set_person_customer",
+  "mark_done",
+  "dismiss",
+  "undo",
+].sort();
+// Tools that change data or cost credits must prompt in Codex.
+const promptTools = [
+  "add_knowledge",
+  "refresh_engager_intel",
+  "assign_persona",
+  "apply_people",
+  "restore_person_from_noise",
+  "set_person_customer",
+  "mark_done",
+  "dismiss",
+  "undo",
 ].sort();
 const profiles = [
   {
@@ -36,7 +73,12 @@ const profiles = [
     implicit: true,
     mcpUrl: "https://api.kindling.team/mcp",
     server: "kindling",
-    skills: ["kindling-mcp", "kindling-source-ingestion", "kindling-media"],
+    skills: [
+      "kindling-mcp",
+      "kindling-source-ingestion",
+      "kindling-media",
+      "kindling-analytics",
+    ],
   },
   {
     guard: "kindling-staging-guard.cjs",
@@ -48,6 +90,7 @@ const profiles = [
       "kindling-staging-mcp",
       "kindling-staging-source-ingestion",
       "kindling-staging-media",
+      "kindling-staging-analytics",
     ],
   },
 ];
@@ -147,9 +190,15 @@ for (const profile of profiles) {
     [...server.enabled_tools].sort().join(",") === expectedTools.join(","),
     `${profile.id} tool allowlist mismatch`,
   );
+  for (const tool of promptTools) {
+    assert(
+      server.tools[tool]?.approval_mode === "prompt",
+      `${profile.id} ${tool} must require approval`,
+    );
+  }
   assert(
-    server.tools.add_knowledge.approval_mode === "prompt",
-    `${profile.id} add_knowledge must require approval`,
+    Object.keys(server.tools).sort().join(",") === promptTools.join(","),
+    `${profile.id} tool approval overrides mismatch`,
   );
   assert(
     Object.keys(claudeMcp.mcpServers).join(",") === profile.server,
@@ -255,6 +304,12 @@ for (const profile of profiles) {
   assert(
     !publicContractText.join("\n").includes("list_memory_map"),
     `${profile.id} contains a stale list_memory_map reference`,
+  );
+  const analyticsSkillText = skillContractText[3].replace(/\s+/g, " ");
+  assert(
+    analyticsSkillText.includes("Kindling never sends") &&
+      analyticsSkillText.includes("`confirm=true`"),
+    `${profile.id} analytics skill must keep the no-send and paid-refresh rules`,
   );
   const ingestionSkillText = skillContractText[1];
   const normalizedIngestionSkillText = ingestionSkillText.replace(/\s+/g, " ");

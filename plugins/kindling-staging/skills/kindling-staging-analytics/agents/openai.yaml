@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kindling Staging Analytics"
+  short_description: "Test Kindling analytics in staging"
+  default_prompt: "Use $kindling-staging-analytics to test answers from Kindling Staging analytics, audience and next best actions, stating the window and Profile used."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kindling-staging"
+      description: "Read post analytics, people, relationship stages and next best actions, and make audience or action changes only when asked, in the connected Kindling Staging workspace."
+      transport: "streamable_http"
+      url: "https://api.staging.kindling.team/mcp"
+policy:
+  allow_implicit_invocation: false

@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.6.0 - 2026-11-03
+
+- Added the `kindling-analytics` skill (`kindling-staging-analytics` for
+  staging, explicit-only). It answers what the Kindling Analytics page shows:
+  the overview, top posts, What's working, who engaged, targets and
+  lighthouses by relationship stage (Unaware, Aware, Engaging, Engaged,
+  Co-signed), LinkedIn connection to a Profile, comments, and one person's
+  dossier. It includes worked sequences for "who is engaged", "split that by
+  connection" and "who should I DM", always states the window, and pages to the
+  end before claiming totals.
+- Enabled the analytics, audience and next best action tools in the Codex
+  allowlists. Audience and action writes (`assign_persona`, `apply_people`,
+  `restore_person_from_noise`, `set_person_customer`, `mark_done`, `dismiss`,
+  `undo`) and the paid `refresh_engager_intel` prompt before each call.
+  `draft_message` only drafts; Kindling never sends a message.
+- `kindling-mcp` now routes analytics, audience and next best action questions
+  to the new skill instead of declining them.
+- Disclosed the new tools and the data they send and return in the data-flow
+  READMEs, and updated the skill count to four.
+- The retired `list_post_analytics`, `list_engager_analytics`, `list_audience`,
+  `get_audience_person`, `get_audience_insights` and `apply_audience_people`
+  are never used as substitutes on older servers.
+
 ## 1.5.2 - 2026-11-02
 
 - Linked the Kindling terms of service from the Claude and OpenAI READMEs.

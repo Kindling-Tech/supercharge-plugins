@@ -12,6 +12,10 @@ to `https://app.staging.kindling.team`. No production Kindling endpoint is used.
 
 - `kindling-staging-mcp` for explicit staging recall and knowledge operations.
 - `kindling-staging-source-ingestion` for reviewed staging ingestion.
+- `kindling-staging-media` for staging media upload, analysis, and attachment.
+- `kindling-staging-analytics` for staging analytics, audience, and next best
+  actions. Audience and action changes happen only when asked, and the paid
+  dossier refresh needs explicit confirmation.
 - The same deterministic filtering and approval guardrails as production.
 - Staging-specific OAuth server names, reports, approvals, and audit ledgers.
 

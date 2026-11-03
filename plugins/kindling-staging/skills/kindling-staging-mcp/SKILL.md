@@ -1,6 +1,6 @@
 ---
 name: kindling-staging-mcp
-description: Use the internal Kindling Staging knowledge MCP for Profile discovery, company and Profile recall, original-source lookup, past-content and inspiration-library lookup, known-path fetches, reviewed knowledge writes, and ingestion-status checks. Use only when explicitly testing staging. Route staging ingestion of external sources, URLs, notes, and transcripts to kindling-staging-source-ingestion. Do not use for production Kindling or unrelated platform features.
+description: Use the internal Kindling Staging knowledge MCP for Profile discovery, company and Profile recall, original-source lookup, past-content and inspiration-library lookup, known-path fetches, reviewed knowledge writes, and ingestion-status checks. Use only when explicitly testing staging. Route staging ingestion of external sources, URLs, notes, and transcripts to kindling-staging-source-ingestion, and staging analytics, audience, targets, lighthouses, engagement, connections and next best actions to kindling-staging-analytics. Do not use for production Kindling.
 ---
 
 # Kindling Staging knowledge MCP
@@ -103,7 +103,8 @@ rewriting or resending content.
   `read_content` `get_content`; do not call any other tool in its place.
 - Failed or quarantined content: show the reason and wait for direction.
 
-Do not describe internal Kindling implementation, private prompts, schemas, or
-features outside this public knowledge contract.
+Do not describe internal Kindling implementation, private prompts, or schemas.
+For post performance, people, targets, lighthouses, relationship stages,
+connections, who to contact, and next best actions, use `kindling-staging-analytics`.
 
 For ordinary uploads, file analysis, Idea media/references or Shoot attachments, use `kindling-staging-media`. An upload or an instruction to attach a file does not authorize a knowledge write.

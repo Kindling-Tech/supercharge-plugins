@@ -144,6 +144,11 @@ changed material, creates a review report, and stops. Submit the exact
 `APPROVE` command printed by the report. The hook then permits only those exact
 Kindling tool arguments.
 
+Ask about analytics, targets, lighthouses, connections, or who to contact,
+and the `kindling-analytics` skill answers from the connected workspace. It
+changes audience records or next best actions only when asked, and asks before
+the paid dossier refresh.
+
 Audit receipts:
 
 ```bash

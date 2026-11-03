@@ -27,10 +27,57 @@
         "get_idea_by_id",
         "get_idea_review",
         "list_shoot_days",
-        "get_shoot_day"
+        "get_shoot_day",
+        "get_analytics_overview",
+        "list_posts",
+        "get_post",
+        "list_analytics_people",
+        "get_relationship_grid",
+        "list_comment_activity",
+        "list_profile_scopes",
+        "get_person_spotlight",
+        "get_engager_intel",
+        "fetch_company_people",
+        "list_personas",
+        "list_action_rules",
+        "list_my_actions",
+        "get_action",
+        "draft_message",
+        "refresh_engager_intel",
+        "assign_persona",
+        "apply_people",
+        "restore_person_from_noise",
+        "set_person_customer",
+        "mark_done",
+        "dismiss",
+        "undo"
       ],
       "tools": {
         "add_knowledge": {
+          "approval_mode": "prompt"
+        },
+        "refresh_engager_intel": {
+          "approval_mode": "prompt"
+        },
+        "assign_persona": {
+          "approval_mode": "prompt"
+        },
+        "apply_people": {
+          "approval_mode": "prompt"
+        },
+        "restore_person_from_noise": {
+          "approval_mode": "prompt"
+        },
+        "set_person_customer": {
+          "approval_mode": "prompt"
+        },
+        "mark_done": {
+          "approval_mode": "prompt"
+        },
+        "dismiss": {
+          "approval_mode": "prompt"
+        },
+        "undo": {
           "approval_mode": "prompt"
         }
       }

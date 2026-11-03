@@ -1,7 +1,7 @@
 {
   "name": "kindling",
-  "version": "1.5.2",
-  "description": "Use Kindling knowledge and upload, analyze or attach media by file ID.",
+  "version": "1.6.0",
+  "description": "Use Kindling knowledge, upload, analyze or attach media by file ID, and read analytics, audience and next best actions.",
   "author": {
     "name": "Kindling",
     "url": "https://kindling.team"
@@ -9,12 +9,12 @@
   "homepage": "https://kindling.team",
   "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
   "license": "Apache-2.0",
-  "keywords": ["kindling", "mcp", "knowledge", "ingestion"],
+  "keywords": ["kindling", "mcp", "knowledge", "ingestion", "analytics"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Kindling",
     "shortDescription": "Knowledge and media tools",
-    "longDescription": "Read Kindling knowledge, review durable knowledge writes, and upload, analyze or attach media when requested.",
+    "longDescription": "Read Kindling knowledge, review durable knowledge writes, upload, analyze or attach media when requested, and answer from analytics, audience and next best actions.",
     "developerName": "Kindling",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],

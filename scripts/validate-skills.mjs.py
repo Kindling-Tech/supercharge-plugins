@@ -14,11 +14,17 @@ VALIDATOR = Path.home() / ".codex/skills/.system/skill-creator/scripts/quick_val
 
 def main() -> int:
     expected = {
-        "kindling": {"kindling-mcp", "kindling-source-ingestion", "kindling-media"},
+        "kindling": {
+            "kindling-mcp",
+            "kindling-source-ingestion",
+            "kindling-media",
+            "kindling-analytics",
+        },
         "kindling-staging": {
             "kindling-staging-mcp",
             "kindling-staging-source-ingestion",
             "kindling-staging-media",
+            "kindling-staging-analytics",
         },
     }
     skills: list[Path] = []
@@ -33,8 +39,8 @@ def main() -> int:
             )
             return 1
         skills.extend(discovered)
-    if len(skills) != 6:
-        print(f"expected exactly 6 skills, found {len(skills)}", file=sys.stderr)
+    if len(skills) != 8:
+        print(f"expected exactly 8 skills, found {len(skills)}", file=sys.stderr)
         return 1
     for skill_md in skills:
         subprocess.run(

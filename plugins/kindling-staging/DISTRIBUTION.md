@@ -24,6 +24,9 @@ to switch it to production.
    approvals cannot authorize production writes.
 9. Test recall, an unapproved write, an approved write, a changed write, and a
    success receipt with a non-production account.
+10. Ask `kindling-staging-analytics` who is engaged, to split that by
+    connection, and who to DM; confirm audience and action writes and
+    `refresh_engager_intel` prompt in Codex.
 
 Never publish staging as installed by default. Staging skills remain explicit
 only so ordinary Kindling requests continue to select production.

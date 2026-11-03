@@ -1,0 +1,13 @@
+interface:
+  display_name: "Kindling Analytics"
+  short_description: "Analytics, audience and next actions"
+  default_prompt: "Use $kindling-analytics to answer from Kindling analytics, audience and next best actions, stating the window and Profile used."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "kindling"
+      description: "Read post analytics, people, relationship stages and next best actions, and make audience or action changes only when asked, in the connected Kindling workspace."
+      transport: "streamable_http"
+      url: "https://api.kindling.team/mcp"
+policy:
+  allow_implicit_invocation: true

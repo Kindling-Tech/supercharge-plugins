@@ -1,6 +1,6 @@
 ---
 name: kindling-mcp
-description: Use the existing Kindling knowledge MCP correctly for Profile discovery, company and Profile recall, original-source lookup, past-content and inspiration-library lookup, known-path fetches, reviewed knowledge writes, and ingestion-status checks. Use for questions about Kindling knowledge or requests to remember a user-provided durable fact. Route external sources, URLs, notes, and transcripts to kindling-source-ingestion. Do not use for unrelated Kindling platform features.
+description: Use the existing Kindling knowledge MCP correctly for Profile discovery, company and Profile recall, original-source lookup, past-content and inspiration-library lookup, known-path fetches, reviewed knowledge writes, and ingestion-status checks. Use for questions about Kindling knowledge or requests to remember a user-provided durable fact. Route external sources, URLs, notes, and transcripts to kindling-source-ingestion, and analytics, audience, targets, lighthouses, engagement, connections and next best actions to kindling-analytics.
 ---
 
 # Kindling knowledge MCP
@@ -99,7 +99,8 @@ rewriting or resending content.
   `read_content` `get_content`; do not call any other tool in its place.
 - Failed or quarantined content: show the reason and wait for direction.
 
-Do not describe internal Kindling implementation, private prompts, schemas, or
-features outside this public knowledge contract.
+Do not describe internal Kindling implementation, private prompts, or schemas.
+For post performance, people, targets, lighthouses, relationship stages,
+connections, who to contact, and next best actions, use `kindling-analytics`.
 
 For ordinary uploads, file analysis, Idea media/references or Shoot attachments, use `kindling-media`. An upload or an instruction to attach a file does not authorize a knowledge write.

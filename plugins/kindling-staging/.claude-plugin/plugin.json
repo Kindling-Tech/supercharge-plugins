@@ -1,7 +1,7 @@
 {
   "name": "kindling-staging",
-  "version": "1.5.2",
-  "description": "Use Kindling knowledge and upload, analyze or attach media by file ID.",
+  "version": "1.6.0",
+  "description": "Use Kindling knowledge, upload, analyze or attach media by file ID, and read analytics, audience and next best actions.",
   "author": {
     "name": "Kindling",
     "url": "https://kindling.team"
@@ -9,7 +9,14 @@
   "homepage": "https://app.staging.kindling.team",
   "repository": "https://github.com/Kindling-Tech/supercharge-plugins",
   "license": "Apache-2.0",
-  "keywords": ["kindling", "staging", "mcp", "knowledge", "ingestion"],
+  "keywords": [
+    "kindling",
+    "staging",
+    "mcp",
+    "knowledge",
+    "ingestion",
+    "analytics"
+  ],
   "skills": "./skills/",
   "mcpServers": "./claude.mcp.json",
   "userConfig": {
