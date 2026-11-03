@@ -19,8 +19,8 @@ Common arguments:
 
 ### `get_analytics_overview(window?, scope?, founder_id?, metric?)`
 
-The Analytics page's top: hero numbers, the platform breakdown, What's working
-and Your activity. Use it for "how are we doing" and "what's working". A metric
+The platform breakdown and What's working, each against the previous period.
+The stage ladder at the top of the page is `get_relationship_grid`. Use it for "how are we doing" and "what's working". A metric
 it marks unavailable is unknown, not 0.
 
 ### `list_posts(window?, sort?, platform?, scope?, founder_id?, ...)`

@@ -17,17 +17,17 @@ come from the server's own tool schemas; the per-tool notes are in
 
 ## Choose the tool
 
-| Question                                                               | Start with                                                               |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| How are we doing? Hero numbers, platforms, what's working, my activity | `get_analytics_overview`                                                 |
-| Top or recent posts                                                    | `list_posts`                                                             |
-| How did this post do?                                                  | `get_post`                                                               |
-| Who engaged, who are my targets or lighthouses, at what stage          | `list_analytics_people`                                                  |
-| Stage by LinkedIn connection, who moved up                             | `get_relationship_grid`                                                  |
-| Comments on our posts, or our comments on others'                      | `list_comment_activity`                                                  |
-| Everything about one person                                            | `fetch_company_people` with `include_insights=true`, `get_engager_intel` |
-| Personas and the ICP                                                   | `list_personas`                                                          |
-| What should I do next?                                                 | `list_my_actions`, `get_action`                                          |
+| Question                                                                                   | Start with                                                               |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| How are we doing by platform, what's working                                               | `get_analytics_overview`                                                 |
+| Top or recent posts                                                                        | `list_posts`                                                             |
+| How did this post do?                                                                      | `get_post`                                                               |
+| Who engaged, who are my targets or lighthouses, at what stage                              | `list_analytics_people`                                                  |
+| The relationship ladder at the top of the page: stage by LinkedIn connection, who moved up | `get_relationship_grid`                                                  |
+| Comments on our posts, or our comments on others'                                          | `list_comment_activity`                                                  |
+| Everything about one person                                                                | `fetch_company_people` with `include_insights=true`, `get_engager_intel` |
+| Personas and the ICP                                                                       | `list_personas`                                                          |
+| What should I do next?                                                                     | `list_my_actions`, `get_action`                                          |
 
 ## Profile first
 
