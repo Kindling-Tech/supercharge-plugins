@@ -33,22 +33,22 @@ in through Kindling's OAuth flow:
   the user asks for a media task.
 - Analytics read tools (`get_analytics_overview`, `list_posts`, `get_post`,
   `list_analytics_people`, `get_relationship_grid`, `list_comment_activity`,
-  `list_profile_scopes`, `get_person_spotlight`, `get_engager_intel`) send a
+  `get_engager_intel`) send a
   time window, Profile ID, filters such as stage, persona or connection, a
   search name, and post IDs or a person's public profile URL. They return the
   connected company's post metrics and comments, and the people who engaged
   with its posts: names, public profile details, relationship stage, LinkedIn
   connection to a Profile, and the stored dossier for one person.
 - Audience and next-best-action read tools (`fetch_company_people`,
-  `list_personas`, `list_action_rules`, `list_my_actions`, `get_action`,
-  `draft_message`) send person, persona and action IDs, and return the
-  company's audience records, personas, the next best action types, the
-  user's open actions, and a drafted message. Kindling never sends a message:
+  `list_personas`, `list_my_actions`, `get_action`, `draft_message`) send
+  person, persona and action IDs, and return the company's audience records,
+  personas, the user's open next best actions, and a drafted message. Kindling never sends a message:
   the user sends any draft themselves.
 - Audience and action write tools (`assign_persona`, `apply_people`,
-  `restore_person_from_noise`, `set_person_customer`, `mark_done`, `dismiss`,
-  `undo`) send person, persona and action IDs and the change the user asked
-  for. They are used only when the user asks, and each call goes through the
+  `mark_done`, `dismiss`, `undo`) send person, persona and action IDs and the
+  change the user asked for: adding, updating, marking as noise or restoring
+  people, setting whether one is a customer, or completing, dismissing or
+  undoing an action. They are used only when the user asks, and each call goes through the
   host's tool approval.
 - `refresh_engager_intel` sends one person's public profile URL so Kindling
   rebuilds their dossier from fresh public data. It costs Kindling credits, so

@@ -10,7 +10,8 @@ Common arguments:
 - `window`: the period the numbers cover. State it in every answer.
 - `scope`: `company`, `founder` (one Profile, with `founder_id`) or `all`.
   Connection fields need `scope=founder`.
-- `founder_id`: an exact ID from `list_profiles`.
+- `founder_id`: an exact ID from `list_profiles`, the only way to choose a
+  Profile.
 - Paging: follow `next_cursor`, `has_more` or the next offset to the end before
   claiming a total or "all", or quote the returned `total`.
 
@@ -58,14 +59,6 @@ arrivals at a stage in the range, not net change.
 Comments on the company's posts and comments its founders left elsewhere, for
 a window.
 
-### `list_profile_scopes()`
-
-Which Profiles have analytics, for choosing `scope` and `founder_id`.
-
-### `get_person_spotlight(...)`
-
-The people who stand out for the period, as on the Analytics page.
-
 ### `get_engager_intel(profile_url)`
 
 The stored dossier for one person: who they are, what they post about, and how
@@ -83,8 +76,9 @@ the person, wait for their yes to this specific refresh, then call it with
 
 ### `fetch_company_people(...)`
 
-The canonical people records. With a Profile it adds that founder's connection,
-warmth and an insights dossier.
+The canonical people records. For one person's full detail pass their
+`entity_ids` with `include_insights=true`. With a Profile it adds that
+founder's connection, warmth and the insights dossier.
 
 ### `list_personas()`
 
@@ -96,25 +90,34 @@ Assigns a person to a persona. Only when the person asks.
 
 ### `apply_people(...)` (write)
 
-Adds people to the audience, updates them, or marks them as noise. Only when
-asked; say who changes and how before the call.
+Changes audience records. Actions:
 
-### `restore_person_from_noise(...)`, `set_person_customer(...)` (write, optional)
+- `add`: add people to the audience.
+- `update`: change their details.
+- `remove`: mark them as noise.
+- `restore`: take them out of noise.
+- `set_customer`: with `entity_id` and `is_customer` true or false.
 
-May not exist on every server. If absent, say that the change has to be made
-on the Audience page.
+Only when asked; say who changes and how before the call.
 
 ## Next best actions
 
-### `list_action_rules()`
+### `list_my_actions(profile_id?, ...)`, `get_action(...)`
 
-Every next best action type: its trigger, its channel (a DM, a public comment
-or post, and so on) and who it targets. Read it before saying which kind of
-action fits a person.
+Open next best actions, in rank order. `profile_id` (alias `founder_id`)
+chooses whose:
 
-### `list_my_actions(...)`, `get_action(...)`
+- omitted: the signed-in person's own actions in this company;
+- a Profile ID from `list_profiles`: that Profile's actions, as the Home page
+  shows them;
+- `"all"`: every Profile's actions.
 
-The person's open next best actions, and one action in full.
+Each item says what kind of action it is (for example a DM or a public
+comment) and who it is about. `get_action` returns one action in full. For
+"who should I DM", keep the DM or message actions.
+
+`get_action`, `draft_message`, `mark_done`, `dismiss` and `undo` work on any
+action visible on the company's Home, not only the signed-in person's.
 
 ### `draft_message(...)`
 

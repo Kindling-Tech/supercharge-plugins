@@ -10,11 +10,12 @@
   dossier. It includes worked sequences for "who is engaged", "split that by
   connection" and "who should I DM", always states the window, and pages to the
   end before claiming totals.
-- Enabled the analytics, audience and next best action tools in the Codex
+- Enabled 18 analytics, audience and next best action tools in the Codex
   allowlists. Audience and action writes (`assign_persona`, `apply_people`,
-  `restore_person_from_noise`, `set_person_customer`, `mark_done`, `dismiss`,
-  `undo`) and the paid `refresh_engager_intel` prompt before each call.
-  `draft_message` only drafts; Kindling never sends a message.
+  `mark_done`, `dismiss`, `undo`) and the paid `refresh_engager_intel` prompt
+  before each call. `apply_people` adds, updates, marks as noise
+  (`remove`), restores from noise, and sets whether a person is a customer.
+  `draft_message` only returns text; Kindling never sends a message.
 - `kindling-mcp` now routes analytics, audience and next best action questions
   to the new skill instead of declining them.
 - Disclosed the new tools and the data they send and return in the data-flow
