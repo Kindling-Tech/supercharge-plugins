@@ -40,18 +40,21 @@ which Profile "my" means. Never guess an ID.
 
 ## The stage ladder
 
-Use the page's words: **Unaware → Aware → Engaging → Engaged → Co-signed**.
+<!-- Follows the page's current labels (KIN-1467). Update when KIN-1467 is reverted. -->
 
-- **Unaware**: no signal from them yet.
-- **Aware**: they follow the founder, or the founder noted meeting them.
-- **Engaging**: engaged with 1-2 of the founder's posts.
-- **Engaged**: engaged with 3 or more different posts. A like, comment and
-  repost on one post count as one post.
-- **Co-signed**: reposted an owned post, or the founder recorded their
-  advocacy.
+Use the words the page shows today: **Unaware → Aware → Engaged → Co-signed**.
 
-`target_status` values are `unaware`, `aware`, `engaging`, `engaged` and
-`co_signed`. Say the words above, not the values.
+| Say           | Means                                                    | `target_status`    |
+| ------------- | -------------------------------------------------------- | ------------------ |
+| **Unaware**   | No engagement yet                                        | `unaware`, `aware` |
+| **Aware**     | Engaged with 1-2 different posts                         | `engaging`         |
+| **Engaged**   | Engaged with 3 or more different posts                   | `engaged`          |
+| **Co-signed** | Reposted an owned post, or the founder declared advocacy | `co_signed`        |
+
+- A like, comment and repost on one post count as one post.
+- Filter with the five `target_status` values, but reply with the four words.
+  "Aware" in a question means `engaging`; "Unaware" means `unaware` and
+  `aware` together. Never call a saved `aware` person "Aware".
 
 ## Connections
 

@@ -5,9 +5,9 @@
 - Added the `kindling-analytics` skill (`kindling-staging-analytics` for
   staging, explicit-only). It answers what the Kindling Analytics page shows:
   the overview, top posts, What's working, who engaged, targets and
-  lighthouses by relationship stage (Unaware, Aware, Engaging, Engaged,
-  Co-signed), LinkedIn connection to a Profile, comments, and one person's
-  dossier. It includes worked sequences for "who is engaged", "split that by
+  lighthouses by relationship stage in the page's current words (Unaware,
+  Aware, Engaged, Co-signed), LinkedIn connection to a Profile, comments, and
+  one person's dossier. It includes worked sequences for "who is engaged", "split that by
   connection" and "who should I DM", always states the window, and pages to the
   end before claiming totals.
 - Enabled 18 analytics, audience and next best action tools in the Codex

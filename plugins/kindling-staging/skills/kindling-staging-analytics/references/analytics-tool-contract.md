@@ -39,7 +39,9 @@ The People and Targets table. Filters:
 - `segment`: which group (for example targets or lighthouses).
 - `query`: a name search. `post_id`: people who engaged with one post.
 - `target_status`: the saved stage, one or more of `unaware`, `aware`,
-  `engaging`, `engaged`, `co_signed`.
+  `engaging`, `engaged`, `co_signed`. The page currently shows `unaware` and
+  `aware` as Unaware and `engaging` as Aware (KIN-1467); reply with the page's
+  words, as the skill's stage ladder says.
 - `connection`: `direct`, `not_listed` or `unknown`; only with `scope=founder`.
 - `moved_since`: only people who reached their stage since that date.
 
